@@ -275,7 +275,7 @@ export default function Maps() {
           map.removeLayer(overlay);
           setMessage(`Failed to load map tiles for ${datasetKey} ${data.legend?.label || index} after timeout. Try a different date range or region.`);
         }
-      }, 10000);
+      }, 30000);
 
       overlay.on('error', (err) => {
         console.error(`Tile layer error on attempt ${attempt}:`, err);
