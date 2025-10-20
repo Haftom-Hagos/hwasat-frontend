@@ -40,8 +40,7 @@ export default function Gallery() {
       title: "Tree patches and green areas of Mekelle city",
       desc: "Urban trees play a vital role in regulating city temperatures, improving air quality, and enhancing residents’ well-being.",
       more:
-        `Urban trees play a vital role in regulating city temperatures, improving air quality, and enhancing residents’ well-being.              
-         Integrating trees and green spaces into urban planning is essential for fostering healthier and more sustainable cities. 
+        `Integrating trees and green spaces into urban planning is essential for fostering healthier and more sustainable cities. 
          This map visualizes trees taller than one meter along with other green areas in Mekelle city, Tigray, Ethiopia.
          Such high-resolution mapping provides valuable insights for urban planners, helping guide the development of
          green infrastructure and optimize the distribution of vegetation across the city. Notably, the visualization highlights that
@@ -50,10 +49,9 @@ export default function Gallery() {
     {
       img: "images/3d_land_cover_addis_2023.png",
       title: "2023 Land Cover Classification for Addis Ababa",
-      desc: "3D land cover maps offer a more realistic visualization of the study area.",
+      desc: "3D land cover maps offer a more realistic visualization compared to 2D maps.",
       more:
-        `3D land cover maps offer a more realistic visualization of the study area compared to traditional 2D maps. 
-         While 3D representations may not yet be practical for routine quantitative analysis, they provide valuable 
+        `While 3D representations may not yet be practical for routine quantitative analysis, they provide valuable 
          insights into landform characteristics and the spatial distribution of land cover classes across varied terrain.
          For 2023, the 3D land cover map of Addis Ababa and its surrounding districts shows that trees are largely confined to
          mountainous areas, whereas cropland and built-up areas dominate flat and gently sloping landscapes. 
@@ -65,10 +63,9 @@ export default function Gallery() {
     {
       img: "images/Addis_roads.png",
       title: "Road network map of Addis Ababa",
-      desc: "This map presents the road network of Addis Ababa, Ethiopia, generated using data from OpenStreetMap.",
+      desc: "This map presents the road network of Addis Ababa, Ethiopia, generated using data from OpenStreetMap and processed in Jupyter Notebook. ",
       more:
-        ` map presents the road network of Addis Ababa, Ethiopia, generated using data from OpenStreetMap and processed in Jupyter Notebook. 
-         The visualization distinguishes between different types of roads: primary and major roads are depicted with greater width, emphasizing the main transport arteries, while 
+        `The visualization distinguishes between different types of roads: primary and major roads are depicted with greater width, emphasizing the main transport arteries, while 
          residential and minor roads are shown thinner, highlighting the finer details of the city’s street layout. This representation provides a clear overview of Addis Ababa’s urban connectivity 
          and infrastructure, supporting urban planning, transportation analysis, and spatial studies`
     },
@@ -77,17 +74,16 @@ export default function Gallery() {
       title: "3D River network of Tigray Region",
       desc: "This 3D elevation map of Tigray showcases the region’s rugged topography.",
       more:
-        `The map highlights the intricate network of rivers that traverse the mountainous terrain, emphasizing how these natural features shape the landscape. 
+      `The map highlights the intricate network of rivers that traverse the mountainous terrain, emphasizing how these natural features shape the landscape. 
       By visualizing elevation in three dimensions, the map provides a deeper understanding of the region’s geographic complexity and scenic beauty, offering 
       valuable insights for environmental studies, land-use planning, and geographic education.`
     },
     {
       img: "images/S_tigray_CH.png",
       title: "Canopy height model of Southern Tigray",
-      desc: "Canopy height is a fundamental parameter for understanding forest structure and biomass production.",
+      desc: "Canopy height is a fundamental parameter for understanding forest structure and biomass production both of which are critical for environmental research.",
       more:
-        `Canopy height is a fundamental parameter for understanding forest structure and biomass production, 
-         both of which are critical for environmental research. This map presents a detailed canopy height model of Southern Tigray, Ethiopia, at a 10-meter resolution, 
+        `This map presents a detailed canopy height model of Southern Tigray, Ethiopia, at a 10-meter resolution, 
          generated using Datashader. It prominently highlights the Hugumbrda Forest, one of Ethiopia’s dry Afromontane forests. 
          The underlying dataset is globally available for the year 2020 at 10-meter resolution, providing a valuable resource for researchers studying 
          forest vertical structure, biomass estimation, and related ecological processes. Traditional land cover maps are typically limited to a horizontal view, overlooking the influence of terrain on land cover patterns. 
@@ -99,10 +95,9 @@ export default function Gallery() {
     {
       img: "images/southern_tigray_lc_3d.png",
       title: "3D land cover map of Southern Tigray",
-      desc: "Traditional land cover maps overlook terrain influence on cover patterns.",
+      desc: "Traditional land cover maps are typically limited to a horizontal view, overlooking the influence of terrain on land cover patterns.",
       more:
-        `Traditional land cover maps are typically limited to a horizontal view, overlooking the influence of terrain on land cover patterns. 
-		The 2023 3D land cover map of Southern Tigray, Ethiopia, combines elevation data to illustrate how terrain shapes the distribution of land cover.
+        `The 2023 3D land cover map of Southern Tigray, Ethiopia, combines elevation data to illustrate how terrain shapes the distribution of land cover.
          The map shows that croplands and built-up areas are concentrated on flatter terrains, while trees and rangelands are more common in rugged landscapes.
          Integrating 3D land cover maps into planning processes can support smarter, more sustainable decision-making. Such visualizations are valuable for land-use planners, 
           policymakers, and other stakeholders pursuing environmentally responsible and climate-resilient development`
@@ -110,10 +105,9 @@ export default function Gallery() {
     {
       img: "images/Centeral_Tigray_Vegetation_map.jpg",
       title: "Central Tigray Vegetation Cover",
-      desc: "This map illustrates vegetation coverage in the Central Zone of Tigray.",
+      desc: "This map illustrates vegetation coverage in the Central Zone of Tigray, Ethiopia. The method used was based on unsupervised classification (K-means) of Sentinel-2 imagery ",
       more:
-        `This map illustrates vegetation coverage in the Central Zone of Tigray, Ethiopia, based on unsupervised classification of Sentinel-2 imagery. 
-		Pixels were initially clustered into five classes and subsequently reclassified into vegetated and non-vegetated areas, providing a clear overview of the region’s green coverage`
+        `Pixels were initially clustered into five classes and subsequently reclassified into vegetated and non-vegetated areas, providing a clear overview of the region’s green coverage`
     }
   ];
 
