@@ -2,7 +2,7 @@
   "name": "ethiosathub-react",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://haftom-hagos.github.io",
+  "homepage": "https://haftom-hagos.github.io/ethiosathub-react",
   "scripts": {
     "dev": "vite",
     "build": "npx vite build",
