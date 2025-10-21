@@ -38,12 +38,59 @@ export default function Maps() {
 
   // 🗂️ Dataset configuration
   const DATASET_CONFIG = {
-    landcover: { label: "Land cover", indices: [{ v: "dynamic", t: "Dynamic World (10m)" }], yearRange: [2015, new Date().getFullYear()], minDate: "2015-07-27" },
-    sentinel2: { label: "Sentinel-2", indices: [{ v: "NDVI", t: "NDVI" }, { v: "NDWI", t: "NDWI" }, { v: "NBR", t: "NBR" }, { v: "NDBI", t: "NDBI" }, { v: "NDCI", t: "NDCI" }], yearRange: [2017, new Date().getFullYear()], minDate: "2017-06-23" },
-    landsat: { label: "Landsat", indices: [{ v: "NDVI", t: "NDVI" }, { v: "NDWI", t: "NDWI" }, { v: "NBR", t: "NBR" }, { v: "NDBI", t: "NDBI" }], yearRange: [1984, new Date().getFullYear()], minDate: "1984-03-01" },
-    modis: { label: "MODIS", indices: [{ v: "NDVI", t: "NDVI" }, { v: "NDWI", t: "NDWI" }, { v: "NBR", t: "NBR" }, { v: "NDBI", t: "NDBI" }], yearRange: [2000, new Date().getFullYear()], minDate: "2000-02-18" },
-    climate: { label: "Climate", indices: [{ v: "SPI", t: "SPI" }, { v: "VHI", t: "VHI" }], yearRange: [1981, new Date().getFullYear()], minDate: "1981-01-01" },
-  };
+  landcover: { label: "Land cover", indices: [{ v: "dynamic", t: "Dynamic World (10m)" }], yearRange: [2015, new Date().getFullYear()], minDate: "2015-07-27" },
+  sentinel2: { label: "Sentinel-2", indices: [
+    { v: "NDVI", t: "NDVI" },
+    { v: "NDWI", t: "NDWI" },
+    { v: "NBR", t: "NBR" },
+    { v: "NDBI", t: "NDBI" },
+    { v: "NDCI", t: "NDCI" },
+    { v: "GNDVI", t: "GNDVI" },
+    { v: "NDRE", t: "NDRE" },
+    { v: "MNDWI", t: "MNDWI" },
+    { v: "NDMI", t: "NDMI" },
+    { v: "NDSI", t: "NDSI" },
+    { v: "EVI", t: "EVI" },
+    { v: "EVI2", t: "EVI2" },
+    { v: "SAVI", t: "SAVI" },
+    { v: "MSAVI", t: "MSAVI" },
+    { v: "ARVI", t: "ARVI" },
+    { v: "GOSAVI", t: "GOSAVI" },
+    { v: "OSAVI", t: "OSAVI" },
+    { v: "MCARI", t: "MCARI" },
+    { v: "MSI", t: "MSI" },
+    { v: "BSI", t: "BSI" },
+    { v: "SIPI", t: "SIPI" }
+  ], yearRange: [2017, new Date().getFullYear()], minDate: "2017-06-23" },
+  landsat: { label: "Landsat", indices: [
+    { v: "NDVI", t: "NDVI" },
+    { v: "GNDVI", t: "GNDVI" },
+    { v: "NDWI", t: "NDWI" },
+    { v: "NBR", t: "NBR" },
+    { v: "NDBI", t: "NDBI" },
+    { v: "NDMI", t: "NDMI" },
+    { v: "NDSI", t: "NDSI" },
+    { v: "NDGI", t: "NDGI" },
+    { v: "EVI", t: "EVI" },
+    { v: "SAVI", t: "SAVI" },
+    { v: "ARVI", t: "ARVI" },
+    { v: "AVI", t: "AVI" },
+    { v: "GCI", t: "GCI" },
+    { v: "MSI", t: "MSI" },
+    { v: "BSI", t: "BSI" },
+    { v: "SIPI", t: "SIPI" }
+  ], yearRange: [1984, new Date().getFullYear()], minDate: "1984-03-01" },
+  modis: { label: "MODIS", indices: [
+    { v: "NDVI", t: "NDVI" },
+    { v: "EVI", t: "EVI" },
+    { v: "NDWI", t: "NDWI" },
+    { v: "NBR", t: "NBR" },
+    { v: "NDMI", t: "NDMI" },
+    { v: "NDSI", t: "NDSI" }
+  ], yearRange: [2000, new Date().getFullYear()], minDate: "2000-02-18" },
+  climate: { label: "Climate", indices: [{ v: "SPI", t: "SPI" }, { v: "VHI", t: "VHI" }], yearRange: [1981, new Date().getFullYear()], minDate: "1981-01-01" },
+};
+
 
   const LANDCOVER_PALETTE = {
     water: "#419BDF",
@@ -311,24 +358,59 @@ export default function Maps() {
     const min = data.legend?.meta?.min ?? vis.min ?? 0;
     const max = data.legend?.meta?.max ?? vis.max ?? 1;
 
-    const indexDescriptions = {
-		  'sentinel2_NDVI': 'Sentinel-2 NDVI',
-		  'sentinel2_NDWI': 'Sentinel-2 NDWI',
-		  'sentinel2_NBR': 'Sentinel-2 NBR',
-		  'sentinel2_NDBI': 'Sentinel-2 NDBI',
-		  'sentinel2_NDCI': 'Sentinel-2 NDCI',
-		  'landsat_NDVI': 'Landsat NDVI',
-		  'landsat_NDWI': 'Landsat NDWI',
-		  'landsat_NBR': 'Landsat NBR',
-		  'landsat_NDBI': 'Landsat NDBI',
-		  'modis_NDVI': 'MODIS NDVI',
-		  'modis_NDWI': 'MODIS NDWI',
-		  'modis_NBR': 'MODIS NBR',
-		  'modis_NDBI': 'MODIS NDBI',
-		  'climate_SPI': 'Climate SPI',
-		  'climate_VHI': 'Climate VHI',
-		  'landcover_dynamic': 'Land Cover Dynamic',
-		};
+	const indexDescriptions = {
+	  // Sentinel-2
+	  'sentinel2_NDVI': 'Sentinel-2 NDVI',
+	  'sentinel2_NDWI': 'Sentinel-2 NDWI',
+	  'sentinel2_NBR': 'Sentinel-2 NBR',
+	  'sentinel2_NDBI': 'Sentinel-2 NDBI',
+	  'sentinel2_NDCI': 'Sentinel-2 NDCI',
+	  'sentinel2_GNDVI': 'Sentinel-2 GNDVI',
+	  'sentinel2_NDRE': 'Sentinel-2 NDRE',
+	  'sentinel2_MNDWI': 'Sentinel-2 MNDWI',
+	  'sentinel2_NDMI': 'Sentinel-2 NDMI',
+	  'sentinel2_NDSI': 'Sentinel-2 NDSI',
+	  'sentinel2_EVI': 'Sentinel-2 EVI',
+	  'sentinel2_EVI2': 'Sentinel-2 EVI2',
+	  'sentinel2_SAVI': 'Sentinel-2 SAVI',
+	  'sentinel2_MSAVI': 'Sentinel-2 MSAVI',
+	  'sentinel2_ARVI': 'Sentinel-2 ARVI',
+	  'sentinel2_GOSAVI': 'Sentinel-2 GOSAVI',
+	  'sentinel2_OSAVI': 'Sentinel-2 OSAVI',
+	  'sentinel2_MCAR': 'Sentinel-2 MCARI',
+	  'sentinel2_MSI': 'Sentinel-2 MSI',
+	  'sentinel2_BSI': 'Sentinel-2 BSI',
+	  'sentinel2_SIPI': 'Sentinel-2 SIPI',
+	  // Landsat
+	  'landsat_NDVI': 'Landsat NDVI',
+	  'landsat_GNDVI': 'Landsat GNDVI',
+	  'landsat_NDWI': 'Landsat NDWI',
+	  'landsat_NBR': 'Landsat NBR',
+	  'landsat_NDBI': 'Landsat NDBI',
+	  'landsat_NDMI': 'Landsat NDMI',
+	  'landsat_NDSI': 'Landsat NDSI',
+	  'landsat_NDGI': 'Landsat NDGI',
+	  'landsat_EVI': 'Landsat EVI',
+	  'landsat_SAVI': 'Landsat SAVI',
+	  'landsat_ARVI': 'Landsat ARVI',
+	  'landsat_AVI': 'Landsat AVI',
+	  'landsat_GCI': 'Landsat GCI',
+	  'landsat_MSI': 'Landsat MSI',
+	  'landsat_BSI': 'Landsat BSI',
+	  'landsat_SIPI': 'Landsat SIPI',
+	  // MODIS
+	  'modis_NDVI': 'MODIS NDVI',
+	  'modis_EVI': 'MODIS EVI',
+	  'modis_NDWI': 'MODIS NDWI',
+	  'modis_NBR': 'MODIS NBR',
+	  'modis_NDMI': 'MODIS NDMI',
+	  'modis_NDSI': 'MODIS NDSI',
+	  // Climate
+	  'climate_SPI': 'Climate SPI',
+	  'climate_VHI': 'Climate VHI',
+	  // Landcover
+	  'landcover_dynamic': 'Land Cover Dynamic',
+	};
 
 		const Legend = L.Control.extend({
 		  onAdd() {
