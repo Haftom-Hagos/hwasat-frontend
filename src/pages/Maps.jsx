@@ -330,7 +330,7 @@ export default function Maps() {
         map.removeLayer(overlay);
         if (attempt < maxAttempts) {
           console.log(`Retrying tile layer load, attempt ${attempt + 1}`);
-          setTimeout(() => addTileLayerWithRetry(attempt + 1, maxAttempts), 1000);
+          setTimeout(() => addTileLayerWithRetry(attempt + 1, maxAttempts), 60000);
         } else {
           setMessage(`Failed to load map tiles for ${datasetKey} ${data.legend?.label || index} after ${maxAttempts} attempts. Try a wider date range or different region.`);
         }
@@ -523,7 +523,7 @@ export default function Maps() {
       const endYear = toYear.slice(-2);
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      const timeoutId = setTimeout(() => controller.abort(), 300000);
       const res = await fetch(`${BACKEND_URL}/download`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
