@@ -1,9 +1,10 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
+import logo from '/images/logo.png'   // adjust path as needed
 
 const links = [
   { to: '/', label: 'Home' },
-  { to: '/maps', label: 'Map Tools' },
+  { to: '/maps', label: 'Dashboard' },
   { to: '/data', label: 'Data Portal' },
   { to: '/gallery', label: 'Gallery' },
   { to: '/about', label: 'About' }
@@ -11,13 +12,19 @@ const links = [
 
 export default function Navbar(){
   return (
-    <header className="w-full shadow-lg sticky top-0 z-50">  {/* Bumped z-index */}
+    <header className="w-full shadow-lg sticky top-0 z-50">
       <div className="w-full bg-gray-800 max-w-none px-4 md:px-6 lg:px-8 py-3 flex items-center justify-between">
+        
         <div className="flex items-center gap-3">
-          <div className="w-16 h-10 rounded-md bg-gray-400 flex items-center justify-center text-white font-bold">EGSH</div>
-          <div className="text-xl font-semibold text-white">Ethiopia <br /> GeoSpatial Hub</div>  {/* Added text-white for logo */}
+          <img 
+            src={logo} 
+            alt="Logo"
+            className="w-12 h-12 object-contain"  
+          />
+          <div className="text-xl font-semibold text-white">Hwasat Geosense</div>
         </div>
-        <nav className="hidden md:flex gap-4 items-center">  {/* Temporarily: remove 'hidden md:' to test */}
+
+        <nav className="hidden md:flex gap-4 items-center">
           {links.map(l => (
             <NavLink
               key={l.to}
@@ -32,11 +39,7 @@ export default function Navbar(){
             </NavLink>
           ))}
         </nav>
-		{/*
-		<div className="md:hidden">
-          <NavLink to="/maps" className="px-3 py-2 rounded-md bg-green-600 text-white text-sm hover:bg-green-700 transition-colors">Open Map</NavLink>
-        </div>
-		*/}
+
       </div>
     </header>
   )
