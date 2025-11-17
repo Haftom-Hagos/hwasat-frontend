@@ -47,10 +47,10 @@ export default function Home() {
           </div>
           <div className="absolute inset-0 flex flex-col justify-center items-center z-10 h-full">
             <div className="px-6 py-4 rounded-lg">
-              <h3 className="text-8xl font-bold mb-2 drop-shadow-2xl text-white">EGSH</h3>
+              <h3 className="text-8xl font-bold mb-2 drop-shadow-2xl text-white">Hwasat</h3>
               <p className="text-white drop-shadow-xl text-3xl">
-                Welcome to Ethiopia GeoSpatial Hub! <br />
-                Remote Sensing &amp; Environmental Consultancy — Ethiopia
+                Welcome to Hwasat Geosense! <br />
+                Remote Sensing &amp; Environmental Consultancy
               </p>
             </div>
           </div>
@@ -114,7 +114,7 @@ export default function Home() {
               <h2 className="text-3xl font-semibold mb-2 text-green-800">Visualize and download products</h2>
               <p className="text-2xl text-gray-600 mb-4">
                 Explore our interactive dashboard for visualizing and downloading satellite-derived outputs.
-                Access a variety of geospatial datasets relevant to Ethiopia. Our data resources include Sentinel-2,
+                Access a variety of geospatial datasets. Our data resources include Sentinel-2,
                 Landsat, and MODIS-derived vegetation indices, different drought indices, and land cover maps to support your projects and research.
               </p>
               <Link
