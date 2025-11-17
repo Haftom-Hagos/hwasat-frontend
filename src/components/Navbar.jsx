@@ -19,7 +19,7 @@ export default function Navbar(){
           <img 
             src={logo} 
             alt="Logo"
-            className="w-18 h-18 object-contain"  
+            className="w-28 h-28 object-contain"  
           />
           <div className="text-xl font-semibold text-white">Hwasat Geosense</div>
         </div>
