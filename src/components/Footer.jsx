@@ -16,7 +16,7 @@ export default function Footer() {
         <div className="text-center md:text-left space-y-1">
           <div className="text-sm">
             © {new Date().getFullYear()}{" "}
-            <span className="font-semibold text-white">Ethiopia GeoSpatial Hub</span>
+            <span className="font-semibold text-white">Hwasat Geosense</span>
           </div>
           <div className="text-xs text-gray-400">All rights reserved</div>
           <div className="text-xs text-gray-400 mt-1">
@@ -33,7 +33,7 @@ export default function Footer() {
         {/* Center Section */}
         <div className="text-center">
           <h3 className="text-white font-semibold text-lg mb-1">
-            Remote Sensing & Environmental Consultancy - Ethiopia
+            Remote Sensing & Environmental Consultancy
           </h3>
           <p className="text-gray-400 text-sm">
             Empowering data-driven environmental decisions
