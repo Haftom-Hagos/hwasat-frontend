@@ -10,7 +10,7 @@ export default function About() {
       <div className="container mx-auto px-6 py-6">
         <h1 className="text-3xl font-bold text-green-700 mb-6 border-b border-gray-200 pb-2">About us</h1>
         <p className="text-lg leading-relaxed mb-6">
-          <strong>EGSH</strong> is a modern platform for accessing, analyzing, and visualizing 
+          <strong>Hwasat</strong> is a modern platform for accessing, analyzing, and visualizing 
           satellite-based environmental and agricultural data.  
         </p>
         <p className="text-lg leading-relaxed mb-6">
