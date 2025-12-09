@@ -35,11 +35,11 @@ export default function Home() {
           <div className="image-slider absolute inset-y-0 left-0">
             <div className="slider-wrapper">
               {slides.map((image, index) => (
-                <div key={index} className="slide h-full">
+                <div key={index} className="slide flex justify-center items-center h-full w-full bg-black">
                   <img
                     src={image.src}
                     alt={image.alt}
-                    className="w-full h-full object-contain bg-black"
+                    className="max-w-full max-h-full object-contain"
                   />
                 </div>
               ))}
