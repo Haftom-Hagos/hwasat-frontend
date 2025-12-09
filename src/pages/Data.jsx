@@ -192,11 +192,11 @@ export default function Data() {
             </a>{" "}
             Processed and published by{" "}
             <a
-              href="https://ethiosathub.com"
+              href="https://https://hwasat.com/"
               target="_blank"
               className="text-green-600 hover:underline"
             >
-              EGSH
+              Hwasat
             </a>.
           </p>
         </div>
