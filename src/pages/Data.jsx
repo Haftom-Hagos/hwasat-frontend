@@ -192,7 +192,7 @@ export default function Data() {
             </a>{" "}
             Processed and published by{" "}
             <a
-              href="https://https://hwasat.com"
+              href="https://hwasat.com"
               target="_blank"
               className="text-green-600 hover:underline"
             >
