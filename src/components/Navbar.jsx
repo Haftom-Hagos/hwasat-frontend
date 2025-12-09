@@ -20,18 +20,17 @@ export default function Navbar() {
       <div className="px-4 md:px-6 lg:px-8 py-3 flex items-center justify-between">
 
         {/* Logo & Title */}
-        <div className="flex items-center gap-3">
-          {/*<img
-            src={logo}
-            alt="Logo"
-            className="w-10 h-10 object-contain"
-          />*/}
-
-          <div className="text-xl font-semibold text-white">
-            Hwasat Geosense
-          </div>
-        </div>
-
+    <Link to="/" className="flex items-center gap-3">
+      <img
+        {/*src={logo}
+      alt="Logo"
+      className="w-10 h-10 object-contain"
+      />*/}
+      <div className="text-xl font-semibold text-white">
+      Hwasat Geosense
+      </div>
+    </Link>
+        
         {/* Desktop Menu */}
         <nav className="hidden md:flex gap-4 items-center">
           {links.map((l) => (
