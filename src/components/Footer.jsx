@@ -19,7 +19,7 @@ export default function Footer() {
             <span className="font-semibold text-white">Hwasat Geosense</span>
           </div>
           <div className="text-xs text-gray-400">All rights reserved</div>
-          /*<div className="text-xs text-gray-400 mt-1">
+			{/*<div className="text-xs text-gray-400 mt-1">
             Contact:{" "}
             <a
               href="mailto:admin@ethiosathub.com"
@@ -27,7 +27,7 @@ export default function Footer() {
             >
               admin@ethiosathub.com
             </a>
-          </div*/
+          </div*/}
         </div>
 
         {/* Center Section */}
