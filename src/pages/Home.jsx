@@ -23,7 +23,7 @@ export default function Home() {
         {/* Hero Section (Static Image) */}
         <section className="relative w-full h-[70vh] overflow-hidden flex justify-center items-center text-center">
           <img
-            src="/images/Tigray_river.png"   // ← your static hero image
+            src="/images/img.png" 
             alt="Hero"
             className="absolute inset-0 w-full h-full object-cover"
           />
