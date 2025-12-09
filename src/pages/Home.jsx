@@ -39,7 +39,7 @@ export default function Home() {
                   <img
                     src={image.src}
                     alt={image.alt}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain bg-black"
                   />
                 </div>
               ))}
