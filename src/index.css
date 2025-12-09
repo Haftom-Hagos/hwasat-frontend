@@ -77,7 +77,7 @@ a {
 
 .slider-wrapper {
   display: flex;
-  width: calc(15%); /* for duplicated slides */
+  width: calc(80%); /* for duplicated slides */
   height: 100%;
   animation: slide 120s infinite linear;
 }
