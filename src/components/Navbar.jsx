@@ -22,10 +22,10 @@ export default function Navbar() {
 
         {/* Logo & Title */}
     <Link to="/" className="flex items-center gap-3">
-      <img
-        {/*src={logo}
-      alt="Logo"
-      className="w-10 h-10 object-contain"
+      {/*<img
+        src={logo}
+        alt="Logo"
+        className="w-10 h-10 object-contain"
       />*/}
       <div className="text-xl font-semibold text-white">
       Hwasat Geosense
