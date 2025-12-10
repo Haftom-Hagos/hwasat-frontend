@@ -79,7 +79,7 @@ a {
   display: flex;
   width: calc(100%* 6); /* for duplicated slides */
   height: 100%;
-  animation: slide 120s infinite linear;
+  animation: slide 20s infinite linear;
 }
 
 .slide {
