@@ -77,9 +77,9 @@ a {
 
 .slider-wrapper {
   display: flex;
-  width: calc(100%* 6); /* for duplicated slides */
+  width: calc(100%* 3); /* for duplicated slides */
   height: 100%;
-  animation: slide 720s infinite linear;
+  animation: slide 320s infinite linear;
 }
 
 .slide {
