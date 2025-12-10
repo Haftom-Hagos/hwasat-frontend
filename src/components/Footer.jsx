@@ -54,7 +54,7 @@ export default function Footer() {
             </a>
 
             <a
-              href="https://x.com/EthioSatHub"
+              href="https://x.com/Hwa_Sat"
               target="_blank"
               rel="noreferrer"
               className="hover:text-sky-400 transform transition duration-300 hover:scale-125"
