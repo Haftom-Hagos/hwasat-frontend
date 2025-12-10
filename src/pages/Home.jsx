@@ -20,9 +20,9 @@ export default function Home() {
     { src: "/images/img.png", alt: "Hero slide 1" },
     { src: "/images/img1.png", alt: "Hero slide 2" },
     { src: "/images/img2.png", alt: "Hero slide 3" },
-    {/*{ src: "/images/bg3.jpg", alt: "Hero slide 4" },
-    { src: "/images/bg.jpg", alt: "Hero slide 5" },
-    { src: "/images/lands.jpg", alt: "Hero slide 6" },*/}
+    { src: "/images/img.png", alt: "Hero slide 4" },
+    { src: "/images/img1.png", alt: "Hero slide 5" },
+    { src: "/images/img2.png", alt: "Hero slide 6" },
   ];
 
   const slides = [...heroImages, ...heroImages];
