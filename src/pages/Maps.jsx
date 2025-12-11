@@ -553,7 +553,7 @@ export default function Maps() {
       window.URL.revokeObjectURL(url);
       setMessage("Download successful!");
     } catch (e) {
-      setMessage(`Download failed: ${e.message}`);
+      setMessage(`Notice: ${e.message}`);
     } finally {
       setLoading(false);
     }
