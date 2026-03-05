@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 export default function Home() {
@@ -6,176 +6,178 @@ export default function Home() {
     window.scrollTo(0, 0);
   }, []);
 
-  const [selectedImage, setSelectedImage] = useState(null);
-
-  const openImage = (src, alt) => {
-    setSelectedImage({ src, alt });
-  };
-
-  const closeImage = () => {
-    setSelectedImage(null);
-  };
-
   const heroImages = [
-    { src: "/images/img.png", alt: "Hero slide 1" },
-    { src: "/images/img1.png", alt: "Hero slide 2" },
-    { src: "/images/img2.png", alt: "Hero slide 3" },
-    { src: "/images/img.png", alt: "Hero slide 4" },
-    { src: "/images/img1.png", alt: "Hero slide 5" },
-    { src: "/images/img2.png", alt: "Hero slide 6" },
+    { src: "/images/img.png", alt: "Vegetation monitoring" },
+    { src: "/images/img1.png", alt: "Satellite land cover map" },
+    { src: "/images/img2.png", alt: "Environmental monitoring" },
   ];
 
   const slides = [...heroImages, ...heroImages];
 
   return (
-    <>
-      <div className="space-y-12">
-        {/* Landing / hero - Animated background with sliding images */}
-        <section className="landing-page relative overflow-hidden text-center w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
-          <div className="image-slider absolute inset-y-0 left-0">
-            <div className="slider-wrapper">
-              {slides.map((image, index) => (
-                <div key={index} className="slide flex justify-center items-center h-full w-full bg-black">
-                  <img
-                    src={image.src}
-                    alt={image.alt}
-                    className="max-w-full max-h-full object-contain"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="absolute inset-0 flex flex-col justify-center items-center z-10 h-full">
-            <div className="px-6 py-4 rounded-lg">
-              <h3 className="text-8xl font-bold mb-2 drop-shadow-2xl text-white">Hwasat</h3>
-              <p className="text-white drop-shadow-xl text-3xl">
-                Welcome to Hwasat Geosense! <br />
-                Remote Sensing &amp; Environmental Consultancy
-              </p>
-            </div>
-          </div>
-        </section>
+    <div className="space-y-16">
 
-        {/* Services / main */}
-        <section className="main-page px-4 py-8">
-          <h1 className="text-2xl font-semibold mb-6 text-center max-w-4xl mx-auto">
-            We provide specialised consultancy services in remote sensing and GIS
-            applications tailored to Ethiopia’s environmental challenges. Beyond
-            our online tools, we support organisations, researchers, and
-            policymakers with offline analysis services, including:
-          </h1>
+      {/* HERO SECTION */}
 
-          <ul className="main-services">
-            <li className="service-item">
-              <div className="text-content text-center mb-4">
-                <h3 className="font-semibold text-lg">Supervised classification</h3>
-                <p className="text-sm text-gray-600">using client-provided ground truth data</p>
+      <section className="relative overflow-hidden text-center w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
+
+        <div className="absolute inset-y-0 left-0">
+          <div className="slider-wrapper">
+            {slides.map((image, index) => (
+              <div key={index} className="slide flex justify-center items-center h-full w-full bg-black">
+                <img
+                  src={image.src}
+                  alt={image.alt}
+                  className="max-w-full max-h-full object-contain"
+                />
               </div>
-              <img
-                src="/images/southern_tigray_lc_3d.png"
-                alt="Supervised classification"
-                className="service-image"
-                onClick={() => openImage("/images/southern_tigray_lc_3d.png", "Supervised classification")}
-              />
-            </li>
-
-            <li className="service-item">
-              <div className="text-content text-center mb-4">
-                <h3 className="font-semibold text-lg">MLB</h3>
-                <p className="text-sm text-gray-600">Machine learning–based environmental mapping</p>
-              </div>
-              <img
-                src="/images/Humera.jpg"
-                alt="MLB"
-                className="service-image"
-                onClick={() => openImage("/images/Humera.jpg", "MLB")}
-              />
-            </li>
-
-            <li className="service-item">
-              <div className="text-content text-center mb-4">
-                <h3 className="font-semibold text-lg">Ready-to-use outputs</h3>
-                <p className="text-sm text-gray-600">such as high-resolution maps, statistics, and reports</p>
-              </div>
-              <img
-                src="/images/aa_stad_lidar_3d.png"
-                alt="Ready-to-use outputs"
-                className="service-image"
-                onClick={() => openImage("/images/aa_stad_lidar_3d.png", "Ready-to-use outputs")}
-              />
-            </li>
-          </ul>
-        </section>
-
-        {/* Map / Downloadable maps */}
-        <section className="bg-gray-200 p-8 rounded-lg shadow-md flex justify-center">
-          <div className="map flex flex-col md:flex-row items-center gap-6 max-w-4xl">
-            <div className="flex-1 text-center md:text-center">
-              <h2 className="text-3xl font-semibold mb-2 text-green-800">Visualize and download products</h2>
-              <p className="text-2xl text-gray-600 mb-4">
-                Explore our interactive dashboard for visualizing and downloading satellite-derived outputs.
-                Access a variety of geospatial datasets. Our data resources include Sentinel-2,
-                Landsat, and MODIS-derived vegetation indices, different drought indices, and land cover maps to support your projects and research.
-              </p>
-              <Link
-                to="/maps"
-                className="inline-block bg-green-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-green-700"
-              >
-                Explore Dashboard
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Data Resources */}
-        <section className="flex justify-center bg-gray-200 p-8 rounded-lg shadow-md">
-          <div className="data flex flex-col items-center max-w-4xl text-center md:text-center">
-            <h2 className="text-3xl font-semibold mb-2 text-green-800">
-              Data Resources
-            </h2>
-            <p className="text-2xl text-gray-600 mb-4">
-              Access Ethiopia’s complete administrative boundary datasets, from national to district level,
-              available in multiple formats (SHP, GPKG, GeoJSON) and coordinate systems (GCS and PCS).
-            </p>
-            <Link
-              to="/data"
-              className="inline-block bg-green-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-green-700 transition-colors"
-            >
-              Explore Data Resources
-            </Link>
-          </div>
-        </section>
-
-        {/* Small footer block (page-specific) */}
-        <section className="flex justify-center bg-gray-50 p-8 rounded-lg shadow-md">
-          <div className="footer-content max-w-4xl text-center md:text-left">
-            <p className="text-xl text-gray-600">
-              Whether you are a government agency, NGO, researcher, or private
-              business, we are committed to transforming your data into accurate,
-              actionable, and decision-ready solutions.
-            </p>
-          </div>
-        </section>
-      </div>
-
-      {/* Image Zoom Modal */}
-      {selectedImage && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
-          <div className="relative max-w-4xl max-h-full">
-            <button
-              onClick={closeImage}
-              className="absolute -top-4 -right-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 z-10"
-            >
-              <span className="text-xl">&times;</span>
-            </button>
-            <img
-              src={selectedImage.src}
-              alt={selectedImage.alt}
-              className="max-w-full max-h-[90vh] object-contain"
-            />
+            ))}
           </div>
         </div>
-      )}
-    </>
+
+        <div className="absolute inset-0 flex flex-col justify-center items-center z-10 px-6">
+
+          <h1 className="text-7xl font-bold text-white drop-shadow-2xl mb-6">
+            Hwasat
+          </h1>
+
+          <p className="text-2xl md:text-3xl text-white max-w-3xl drop-shadow-xl mb-8">
+            A platform for exploring and downloading satellite-derived
+            vegetation indices and land cover data.
+          </p>
+
+          <Link
+            to="/maps"
+            className="bg-green-600 text-white px-8 py-4 rounded-lg text-lg shadow-lg hover:bg-green-700 transition"
+          >
+            Explore Satellite Data
+          </Link>
+
+        </div>
+      </section>
+
+      {/* VALUE SECTION */}
+
+      <section className="max-w-6xl mx-auto px-6 text-center">
+
+        <h2 className="text-4xl font-bold text-gray-800 mb-6">
+          Satellite data made accessible
+        </h2>
+
+        <p className="text-xl text-gray-600 leading-relaxed max-w-4xl mx-auto">
+          Earth observation satellites generate enormous amounts of environmental
+          data, but accessing and preparing these datasets often requires
+          advanced technical skills. Hwasat simplifies this process by allowing
+          users to directly visualize and download vegetation indices, drought
+          indicators, and land cover maps derived from multiple satellite
+          missions.
+        </p>
+
+      </section>
+
+      {/* FEATURES */}
+
+      <section className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-8 text-center">
+
+        <div className="bg-gray-50 p-8 rounded-xl shadow-md">
+          <h3 className="text-2xl font-semibold mb-4 text-green-700">
+            Vegetation Monitoring
+          </h3>
+
+          <p className="text-gray-600">
+            Explore vegetation indices such as NDVI and EVI derived from
+            satellite imagery to analyze vegetation health and landscape
+            dynamics.
+          </p>
+        </div>
+
+        <div className="bg-gray-50 p-8 rounded-xl shadow-md">
+          <h3 className="text-2xl font-semibold mb-4 text-green-700">
+            Land Cover Mapping
+          </h3>
+
+          <p className="text-gray-600">
+            Access land cover maps to understand environmental patterns,
+            ecosystem distribution, and land use change.
+          </p>
+        </div>
+
+        <div className="bg-gray-50 p-8 rounded-xl shadow-md">
+          <h3 className="text-2xl font-semibold mb-4 text-green-700">
+            Ready-to-Use Data
+          </h3>
+
+          <p className="text-gray-600">
+            Download processed datasets instantly without the need for complex
+            preprocessing or specialized GIS workflows.
+          </p>
+        </div>
+
+      </section>
+
+      {/* DASHBOARD SECTION */}
+
+      <section className="bg-gray-100 py-12">
+
+        <div className="max-w-5xl mx-auto text-center px-6">
+
+          <h2 className="text-4xl font-semibold text-gray-800 mb-6">
+            Explore the interactive dashboard
+          </h2>
+
+          <p className="text-xl text-gray-600 mb-8">
+            The Hwasat dashboard enables users to visualize and download
+            satellite-derived environmental products including vegetation
+            indices, drought indicators, and land cover datasets derived from
+            Sentinel-2, Landsat, and MODIS imagery.
+          </p>
+
+          <Link
+            to="/maps"
+            className="bg-green-600 text-white px-8 py-4 rounded-lg text-lg shadow hover:bg-green-700 transition"
+          >
+            Launch Dashboard
+          </Link>
+
+        </div>
+
+      </section>
+
+      {/* DATA RESOURCES */}
+
+      <section className="max-w-5xl mx-auto text-center px-6">
+
+        <h2 className="text-3xl font-semibold text-green-800 mb-4">
+          Data Resources
+        </h2>
+
+        <p className="text-xl text-gray-600 mb-6">
+          Access Ethiopia’s administrative boundary datasets from national to
+          district level, available in multiple geospatial formats including
+          SHP, GPKG, and GeoJSON.
+        </p>
+
+        <Link
+          to="/data"
+          className="bg-green-600 text-white px-6 py-3 rounded-md shadow hover:bg-green-700"
+        >
+          Browse Data
+        </Link>
+
+      </section>
+
+      {/* FINAL MESSAGE */}
+
+      <section className="bg-gray-50 py-12 text-center">
+
+        <p className="text-xl text-gray-600 max-w-4xl mx-auto px-6">
+          Hwasat aims to simplify access to satellite-derived environmental
+          information, enabling researchers, organisations, and policymakers to
+          better understand vegetation dynamics and land cover change.
+        </p>
+
+      </section>
+
+    </div>
   );
 }
