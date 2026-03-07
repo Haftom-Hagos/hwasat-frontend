@@ -501,7 +501,7 @@ export default function Maps() {
   };
 
   // ⬇️ Download
-  const handleDownloadClick = async () => {
+const handleDownloadClick = async () => {
     const geometry = useCustomGeoJSON ? customGeoJSON.geometry : selectedFeatureGeoJSON?.geometry;
     if (!geometry) return setMessage(useCustomGeoJSON ? "Upload a GeoJSON first" : "Select a feature first");
     if (!dataset || !index) return setMessage("Select dataset and index");
@@ -509,19 +509,14 @@ export default function Maps() {
     if (!validateDates()) return;
     setLoading(true);
     try {
-      // Determine selected feature name
       let selectedFeature = useCustomGeoJSON ? (customGeoJSON.properties?.name || "Custom") : (featureName || "Custom");
-      // Sanitize feature name for filename
       selectedFeature = selectedFeature.replace(/[\s\/\\]/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
-
-      // Format dates for filename (dd_mm_yy)
       const startDay = fromDay || "01";
       const startMonth = fromMonth || "01";
       const startYear = fromYear.slice(-2);
       const endDay = toDay || "31";
       const endMonth = toMonth || "12";
       const endYear = toYear.slice(-2);
-
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 300000);
       const res = await fetch(`${BACKEND_URL}/download`, {
@@ -567,6 +562,13 @@ export default function Maps() {
         }
         setMessage(`Downloaded ${data.total_tiles} tiles successfully!`);
       }
+
+    } catch (e) {
+      setMessage(`Notice: ${e.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleReset = () => {
     const map = mapRef.current;
