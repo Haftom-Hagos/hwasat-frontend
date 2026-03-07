@@ -542,22 +542,31 @@ export default function Maps() {
         const data = await res.json();
         throw new Error(data.detail || `Download failed: ${res.status}`);
       }
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${dataset}_${index}_${startDay}_${startMonth}_${startYear}_to_${endDay}_${endMonth}_${endYear}_${selectedFeature}.tif`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-      setMessage("Download successful!");
-    } catch (e) {
-      setMessage(`Notice: ${e.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+
+      const data = await res.json();
+
+      const triggerDownload = (url, filename) => {
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      };
+
+      const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+      if (data.type === "single") {
+        triggerDownload(data.tiles[0].url, data.tiles[0].filename);
+        setMessage("Download successful!");
+      } else if (data.type === "multi") {
+        setMessage(`Large AOI detected — downloading ${data.total_tiles} tiles. Please wait...`);
+        for (const tile of data.tiles) {
+          await delay(700);
+          triggerDownload(tile.url, tile.filename);
+        }
+        setMessage(`Downloaded ${data.total_tiles} tiles successfully!`);
+      }
 
   const handleReset = () => {
     const map = mapRef.current;
