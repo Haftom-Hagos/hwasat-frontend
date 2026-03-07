@@ -317,7 +317,7 @@ export default function Maps() {
       overlayRef.current = overlay;
 
       // Timeout to remove layer if it doesn't load
-      const  = setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         if (overlayRef.current === overlay) {
           map.removeLayer(overlay);
           setMessage(`Failed to load map tiles for ${datasetKey} ${data.legend?.label || index} after timeout. Try a different date range or region.`);
@@ -472,8 +472,7 @@ export default function Maps() {
     setMessage(null);
     try {
       const controller = new AbortController();
-     // const timeoutId = setTimeout(() => controller.abort(), 120000);
-	  const timeoutId = setTimeout(() => controller.abort(), 900000);
+      const timeoutId = setTimeout(() => controller.abort(), 120000);
       const res = await fetch(`${BACKEND_URL}/gee_layers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
