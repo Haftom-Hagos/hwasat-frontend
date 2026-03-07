@@ -472,7 +472,7 @@ export default function Maps() {
     setMessage(null);
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 120000);
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
       const res = await fetch(`${BACKEND_URL}/gee_layers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -523,7 +523,7 @@ export default function Maps() {
       const endYear = toYear.slice(-2);
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 300000);
+      const timeoutId = setTimeout(() => controller.abort(), 1200000);
       const res = await fetch(`${BACKEND_URL}/download`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
