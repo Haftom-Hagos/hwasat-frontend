@@ -312,43 +312,14 @@ export default function Maps() {
 
     console.log(`Loading tile URL: ${tileUrl}`); // Debug tile URL
 
+	const overlay = L.tileLayer(tileUrl, { opacity: 0.85, zIndex: 5 }).addTo(map);
+    overlayRef.current = overlay;
 
+    overlay.on('error', (err) => {
+      console.error('Tile layer error:', err);
+      setMessage(`Failed to load map tiles for ${datasetKey} ${data.legend?.label || index}. Try a different date range or region.`);
+    });
 	
-    const addTileLayerWithRetry = (attempt = 1, maxAttempts = 2) => {
-      const overlay = L.tileLayer(tileUrl, { opacity: 0.85, zIndex: 5 }).addTo(map);
-      overlayRef.current = overlay;
-
-      // Timeout to remove layer if it doesn't load
-      const timeoutId = setTimeout(() => {
-        if (overlayRef.current === overlay) {
-          map.removeLayer(overlay);
-          setMessage(`Failed to load map tiles for ${datasetKey} ${data.legend?.label || index} after timeout. Try a different date range or region.`);
-        }
-      }, 300000);
-
-      overlay.on('error', (err) => {
-        console.error(`Tile layer error on attempt ${attempt}:`, err);
-        clearTimeout(timeoutId);
-        map.removeLayer(overlay);
-        if (attempt < maxAttempts) {
-          console.log(`Retrying tile layer load, attempt ${attempt + 1}`);
-          setTimeout(() => addTileLayerWithRetry(attempt + 1, maxAttempts), 300000);
-        } else {
-          setMessage(`Failed to load map tiles for ${datasetKey} ${data.legend?.label || index} after ${maxAttempts} attempts. Try a wider date range or different region.`);
-        }
-      });
-
-      overlay.on('load', () => {
-        clearTimeout(timeoutId);
-        map.invalidateSize(); // Force map refresh
-      });
-    };
-	   
-      overlay.on('tileload', () => {
-        clearTimeout(timeoutId);
-      });
-
-    addTileLayerWithRetry();
 
     if (data.bounds?.length) {
       try {
