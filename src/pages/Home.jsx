@@ -315,15 +315,6 @@ export default function Home() {
           </Link>
         </div>
       </section>
-
-      {/* ── FOOTER NOTE ── */}
-      <section style={{ background: "#f8fafc", padding: "32px 2rem", textAlign: "center", borderTop: "1px solid #e2e8f0" }}>
-        <p style={{ fontSize: "0.9rem", color: "#94a3b8", fontFamily: "sans-serif", lineHeight: 1.8 }}>
-          Hwasat Geosense · Mekelle, Ethiopia ·{" "}
-          <a href="mailto:admin@hwasat.com" style={{ color: "#16a34a", textDecoration: "none" }}>admin@hwasat.com</a>
-        </p>
-      </section>
-
     </div>
   );
 }
