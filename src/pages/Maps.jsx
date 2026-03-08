@@ -315,11 +315,11 @@ export default function Maps() {
 	const overlay = L.tileLayer(tileUrl, { opacity: 0.85, zIndex: 5 }).addTo(map);
     overlayRef.current = overlay;
 
-    overlay.on('error', (err) => {
-      console.error('Tile layer error:', err);
-      setMessage(`Failed to load map tiles for ${datasetKey} ${data.legend?.label || index}. Try a different date range or region.`);
+	overlay.on('tileerror', (err) => {
+      console.error('Tile error:', err);
     });
-	
+
+    
 
     if (data.bounds?.length) {
       try {
