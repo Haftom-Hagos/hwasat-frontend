@@ -8,7 +8,6 @@ const links = [
   { to: "/maps", label: "Dashboard" },
   { to: "/data", label: "Data Portal" },
   { to: "/about", label: "About" }
-  {/* { to: "/gallery", label: "Gallery" },*/}
   
 ];
 
