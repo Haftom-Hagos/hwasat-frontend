@@ -322,7 +322,7 @@ export default function Maps() {
           map.removeLayer(overlay);
           setMessage(`Failed to load map tiles for ${datasetKey} ${data.legend?.label || index} after timeout. Try a different date range or region.`);
         }
-      }, 60000);
+      }, 180000);
 
       overlay.on('error', (err) => {
         console.error(`Tile layer error on attempt ${attempt}:`, err);
@@ -335,7 +335,14 @@ export default function Maps() {
           setMessage(`Failed to load map tiles for ${datasetKey} ${data.legend?.label || index} after ${maxAttempts} attempts. Try a wider date range or different region.`);
         }
       });
+      overlay.on('tileload', () => {
+        clearTimeout(timeoutId); // cancel timeout as soon as first tile arrives
+      });
 
+      overlay.on('load', () => {
+        clearTimeout(timeoutId);
+        map.invalidateSize();
+      });
       overlay.on('load', () => {
         clearTimeout();
         map.invalidateSize(); // Force map refresh
