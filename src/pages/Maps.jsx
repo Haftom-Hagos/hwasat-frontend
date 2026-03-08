@@ -312,39 +312,38 @@ export default function Maps() {
 
     console.log(`Loading tile URL: ${tileUrl}`); // Debug tile URL
 
-	const addTileLayerWithRetry = (attempt = 1, maxAttempts = 2) => {
+
+	
+    const addTileLayerWithRetry = (attempt = 1, maxAttempts = 2) => {
       const overlay = L.tileLayer(tileUrl, { opacity: 0.85, zIndex: 5 }).addTo(map);
       overlayRef.current = overlay;
 
+      // Timeout to remove layer if it doesn't load
       const timeoutId = setTimeout(() => {
         if (overlayRef.current === overlay) {
           map.removeLayer(overlay);
           setMessage(`Failed to load map tiles for ${datasetKey} ${data.legend?.label || index} after timeout. Try a different date range or region.`);
         }
-      }, 180000);
+      }, 60000);
 
       overlay.on('error', (err) => {
         console.error(`Tile layer error on attempt ${attempt}:`, err);
-        clearTimeout(timeoutId); // ✅ added timeoutId
+        clearTimeout(timeoutId);
         map.removeLayer(overlay);
         if (attempt < maxAttempts) {
           console.log(`Retrying tile layer load, attempt ${attempt + 1}`);
-          setTimeout(() => addTileLayerWithRetry(attempt + 1, maxAttempts), 180000); // ✅ 180000
+          setTimeout(() => addTileLayerWithRetry(attempt + 1, maxAttempts), 60000);
         } else {
           setMessage(`Failed to load map tiles for ${datasetKey} ${data.legend?.label || index} after ${maxAttempts} attempts. Try a wider date range or different region.`);
         }
       });
 
-      overlay.on('tileload', () => {
-        clearTimeout(timeoutId); // ✅ cancel on first tile
-      });
-
-      overlay.on('load', () => {  // ✅ only one load listener
+      overlay.on('load', () => {
         clearTimeout(timeoutId);
-        map.invalidateSize();
+        map.invalidateSize(); // Force map refresh
       });
     };
-	
+
     addTileLayerWithRetry();
 
     if (data.bounds?.length) {
@@ -355,7 +354,7 @@ export default function Maps() {
         setMessage("Failed to adjust map bounds.");
       }
     }
-
+	
     const vis = data.vis_params || {};
     const palette = (vis.palette || []).map(normalizeColor);
     const min = data.legend?.meta?.min ?? vis.min ?? 0;
