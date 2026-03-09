@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 
 export default function Layout() {
   const { pathname } = useLocation();
-  const isHome = pathname === '/'; // detect home
+  const isHome = pathname === '/' || pathname === '/maps';
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900">
