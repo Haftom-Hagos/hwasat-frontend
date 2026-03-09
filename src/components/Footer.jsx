@@ -27,7 +27,7 @@ export default function Footer() {
             >
               admin@hwasat.com
             </a>
-          </div
+          </div>
         </div>
 
         {/* Center Section */}
