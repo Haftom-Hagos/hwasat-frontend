@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from "recharts";
 
 const BACKEND_URL = "https://hafrepo-2.onrender.com";
 
@@ -74,6 +75,14 @@ export default function Maps() {
 
   const [indexOptions, setIndexOptions] = useState([]);
   const [yearOptions, setYearOptions] = useState([]);
+
+  // ── Time series & stats state ──
+  const [tsInterval, setTsInterval] = useState("monthly");
+  const [tsLoading, setTsLoading] = useState(false);
+  const [tsData, setTsData] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [statsData, setStatsData] = useState(null);
+  const [activeTab, setActiveTab] = useState("info"); // "info" | "timeseries" | "changestats"
 
   // ── Theme tokens ──
   const t = darkMode ? {
@@ -485,6 +494,64 @@ export default function Maps() {
     </div>
   );
 
+
+  // ── Time Series ──
+  const handleTimeSeries = async () => {
+    const geometry = useCustomGeoJSON ? customGeoJSON?.geometry : selectedFeatureGeoJSON?.geometry;
+    if (!geometry) return setMessage(useCustomGeoJSON ? "Upload a GeoJSON first" : "Select a feature first");
+    if (!dataset || !index) return setMessage("Select dataset and index");
+    if (!fromYear || !toYear) return setMessage("Select date range");
+    if (dataset === "landcover") return setMessage("Time series not available for land cover");
+    setTsLoading(true);
+    setTsData(null);
+    setActiveTab("timeseries");
+    setResultsOpen(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/time_series`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          dataset, index, interval: tsInterval,
+          startDate: `${fromYear}-${fromMonth || "01"}-${fromDay || "01"}`,
+          endDate:   `${toYear}-${toMonth || "12"}-${toDay || "31"}`,
+          geometry,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+      setTsData(data);
+      setMessage("Time series loaded successfully.");
+    } catch (e) { setMessage(`Time series failed: ${e.message}`); }
+    finally { setTsLoading(false); }
+  };
+
+  // ── Land Cover Change Stats ──
+  const handleLandcoverStats = async () => {
+    const geometry = useCustomGeoJSON ? customGeoJSON?.geometry : selectedFeatureGeoJSON?.geometry;
+    if (!geometry) return setMessage(useCustomGeoJSON ? "Upload a GeoJSON first" : "Select a feature first");
+    if (!fromYear || !toYear || !fromYear2 || !toYear2) return setMessage("Select both period date ranges");
+    setStatsLoading(true);
+    setStatsData(null);
+    setActiveTab("changestats");
+    setResultsOpen(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/landcover_change_stats`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          startDate1: `${fromYear}-${fromMonth || "01"}-${fromDay || "01"}`,
+          endDate1:   `${toYear}-${toMonth || "12"}-${toDay || "31"}`,
+          startDate2: `${fromYear2}-${fromMonth2 || "01"}-${fromDay2 || "01"}`,
+          endDate2:   `${toYear2}-${toMonth2 || "12"}-${toDay2 || "31"}`,
+          geometry,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+      setStatsData(data);
+      setMessage("Land cover statistics loaded successfully.");
+    } catch (e) { setMessage(`Stats failed: ${e.message}`); }
+    finally { setStatsLoading(false); }
+  };
+
   const SIDEBAR_W = 300;
 
   return (
@@ -641,6 +708,30 @@ export default function Maps() {
               style={{ background: t.btnPrimary, color: "#fff", border: "none", borderRadius: 7, padding: "10px 16px", fontSize: 13, fontWeight: 600, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "sans-serif" }}>
               <Icon d={icons.eye} size={14} /> View Selection
             </button>
+
+            {/* Time series — only for non-landcover in single date mode */}
+            {dataset !== "landcover" && !changeMode && (
+              <div style={{ display: "flex", gap: 6 }}>
+                <button onClick={handleTimeSeries} disabled={tsLoading || loading}
+                  style={{ flex: 1, background: "#7c3aed", color: "#fff", border: "none", borderRadius: 7, padding: "10px 8px", fontSize: 12, fontWeight: 600, cursor: (tsLoading || loading) ? "not-allowed" : "pointer", opacity: (tsLoading || loading) ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "sans-serif" }}>
+                  📈 {tsLoading ? "Loading..." : "Time Series"}
+                </button>
+                <select value={tsInterval} onChange={e => setTsInterval(e.target.value)}
+                  style={{ background: t.input, border: `1px solid ${t.inputBorder}`, color: t.inputText, borderRadius: 7, padding: "0 8px", fontSize: 12, fontFamily: "sans-serif", cursor: "pointer" }}>
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </div>
+            )}
+
+            {/* Land cover change stats — only in change detection mode with landcover */}
+            {dataset === "landcover" && changeMode && (
+              <button onClick={handleLandcoverStats} disabled={statsLoading || loading}
+                style={{ background: "#0891b2", color: "#fff", border: "none", borderRadius: 7, padding: "10px 16px", fontSize: 12, fontWeight: 600, cursor: (statsLoading || loading) ? "not-allowed" : "pointer", opacity: (statsLoading || loading) ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "sans-serif" }}>
+                📊 {statsLoading ? "Computing..." : "Land Cover Stats"}
+              </button>
+            )}
+
             <button onClick={handleDownloadClick} disabled={loading}
               style={{ background: t.btnSecondary, color: "#fff", border: "none", borderRadius: 7, padding: "10px 16px", fontSize: 13, fontWeight: 600, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "sans-serif" }}>
               <Icon d={icons.download} size={14} /> Download Selection
@@ -693,8 +784,8 @@ export default function Maps() {
 
       {/* ── Sliding Results Panel ── */}
       <div style={{
-        width: resultsOpen ? 300 : 0,
-        minWidth: resultsOpen ? 300 : 0,
+        width: resultsOpen ? 320 : 0,
+        minWidth: resultsOpen ? 320 : 0,
         background: t.sidebar,
         borderLeft: `1px solid ${t.border}`,
         transition: "width 0.35s ease, min-width 0.35s ease",
@@ -703,75 +794,245 @@ export default function Maps() {
         boxShadow: resultsOpen ? "-4px 0 20px rgba(0,0,0,0.12)" : "none",
         zIndex: 100,
       }}>
-        <div style={{ width: 300, height: "100%", overflowY: "auto", padding: "16px 16px 24px" }}>
+        <div style={{ width: 320, height: "100%", overflowY: "auto", display: "flex", flexDirection: "column" }}>
 
           {/* Panel header */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 0", flexShrink: 0 }}>
             <span style={{ fontWeight: 700, fontSize: 14, color: t.text }}>Results</span>
             <button onClick={() => setResultsOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: t.muted, padding: 4, borderRadius: 4 }}>
               <Icon d={icons.close} size={16} />
             </button>
           </div>
 
-          {resultsData && (
-            <>
-              {/* ── Layer info card ── */}
-              <div style={{ background: t.card, border: `1px solid ${t.border}`, borderRadius: 10, padding: "14px 16px", marginBottom: 16 }}>
-                <div style={{ fontSize: 11, color: t.muted, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, fontFamily: "sans-serif" }}>Active Layer</div>
-                <div style={{ fontWeight: 700, fontSize: 16, color: t.accent, marginBottom: 4 }}>{resultsData.label}</div>
-                <div style={{ fontSize: 12, color: t.muted, fontFamily: "sans-serif" }}>{resultsData.datasetLabel}</div>
-                <div style={{ fontSize: 12, color: t.muted, fontFamily: "sans-serif", marginTop: 2 }}>📅 {resultsData.period}</div>
-                {resultsData.isChange && (
-                  <div style={{ marginTop: 8, padding: "6px 8px", background: darkMode ? "rgba(234,88,12,0.1)" : "#fff7ed", borderRadius: 6, fontSize: 11, color: "#9a3412", fontFamily: "sans-serif" }}>
-                    Change detection: Period 2 − Period 1
-                  </div>
-                )}
-              </div>
+          {/* ── Tabs ── */}
+          <div style={{ display: "flex", borderBottom: `1px solid ${t.border}`, margin: "12px 16px 0", flexShrink: 0 }}>
+            {[
+              { key: "info", label: "Layer Info" },
+              { key: "timeseries", label: "📈 Time Series", hide: dataset === "landcover" },
+              { key: "changestats", label: "📊 Change Stats", hide: !(dataset === "landcover" && changeMode) },
+            ].filter(tab => !tab.hide).map(tab => (
+              <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
+                padding: "7px 12px", fontSize: 11, fontWeight: 600, border: "none", cursor: "pointer",
+                background: "none", fontFamily: "sans-serif",
+                color: activeTab === tab.key ? t.accent : t.muted,
+                borderBottom: activeTab === tab.key ? `2px solid ${t.accent}` : "2px solid transparent",
+                marginBottom: -1,
+              }}>{tab.label}</button>
+            ))}
+          </div>
 
-              {/* ── Colour scale ── */}
-              {!resultsData.isLandcover && resultsData.visParams?.palette && (
+          {/* ── Tab content ── */}
+          <div style={{ padding: "16px 16px 24px", flex: 1, overflowY: "auto" }}>
+
+            {/* ── INFO TAB ── */}
+            {activeTab === "info" && resultsData && (
+              <>
                 <div style={{ background: t.card, border: `1px solid ${t.border}`, borderRadius: 10, padding: "14px 16px", marginBottom: 16 }}>
-                  <div style={{ fontSize: 11, color: t.muted, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10, fontFamily: "sans-serif" }}>Colour Scale</div>
-                  <div style={{ height: 12, borderRadius: 6, background: `linear-gradient(to right, ${resultsData.visParams.palette.map(c => c.startsWith("#") ? c : `#${c}`).join(",")})`, marginBottom: 6 }} />
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: t.muted, fontFamily: "sans-serif" }}>
-                    <span>{(resultsData.visParams.min ?? 0).toFixed(2)}</span>
-                    <span>{(resultsData.visParams.max ?? 1).toFixed(2)}</span>
-                  </div>
+                  <div style={{ fontSize: 11, color: t.muted, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, fontFamily: "sans-serif" }}>Active Layer</div>
+                  <div style={{ fontWeight: 700, fontSize: 16, color: t.accent, marginBottom: 4 }}>{resultsData.label}</div>
+                  <div style={{ fontSize: 12, color: t.muted, fontFamily: "sans-serif" }}>{resultsData.datasetLabel}</div>
+                  <div style={{ fontSize: 12, color: t.muted, fontFamily: "sans-serif", marginTop: 2 }}>📅 {resultsData.period}</div>
                   {resultsData.isChange && (
-                    <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 4, fontSize: 11, fontFamily: "sans-serif", color: t.muted }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 2, background: "#d73027", flexShrink: 0, display: "inline-block" }} />Decrease</div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 2, background: "#ffffff", border: "1px solid #ccc", flexShrink: 0, display: "inline-block" }} />No change</div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 2, background: "#1a9850", flexShrink: 0, display: "inline-block" }} />Increase</div>
+                    <div style={{ marginTop: 8, padding: "6px 8px", background: darkMode ? "rgba(234,88,12,0.1)" : "#fff7ed", borderRadius: 6, fontSize: 11, color: "#9a3412", fontFamily: "sans-serif" }}>
+                      Change detection: Period 2 − Period 1
                     </div>
                   )}
                 </div>
-              )}
 
-              {/* ── Land cover classes ── */}
-              {resultsData.isLandcover && resultsData.uniqueClasses?.length > 0 && (
-                <div style={{ background: t.card, border: `1px solid ${t.border}`, borderRadius: 10, padding: "14px 16px", marginBottom: 16 }}>
-                  <div style={{ fontSize: 11, color: t.muted, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10, fontFamily: "sans-serif" }}>Land Cover Classes</div>
-                  {resultsData.uniqueClasses.map((cls, i) => {
-                    const name = typeof cls === "string" ? cls : cls.class_name || `Class ${i}`;
-                    const color = LANDCOVER_PALETTE[name] || "#ccc";
-                    return (
-                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                        <span style={{ width: 14, height: 14, borderRadius: 3, background: color, flexShrink: 0, display: "inline-block", border: "1px solid rgba(0,0,0,0.1)" }} />
-                        <span style={{ fontSize: 12, color: t.text, fontFamily: "sans-serif" }}>{name.replace(/_/g, " ")}</span>
+                {!resultsData.isLandcover && resultsData.visParams?.palette && (
+                  <div style={{ background: t.card, border: `1px solid ${t.border}`, borderRadius: 10, padding: "14px 16px", marginBottom: 16 }}>
+                    <div style={{ fontSize: 11, color: t.muted, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10, fontFamily: "sans-serif" }}>Colour Scale</div>
+                    <div style={{ height: 12, borderRadius: 6, background: `linear-gradient(to right, ${resultsData.visParams.palette.map(c => c.startsWith("#") ? c : `#${c}`).join(",")})`, marginBottom: 6 }} />
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: t.muted, fontFamily: "sans-serif" }}>
+                      <span>{(resultsData.visParams.min ?? 0).toFixed(2)}</span>
+                      <span>{(resultsData.visParams.max ?? 1).toFixed(2)}</span>
+                    </div>
+                    {resultsData.isChange && (
+                      <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 4, fontSize: 11, fontFamily: "sans-serif", color: t.muted }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 2, background: "#d73027", flexShrink: 0, display: "inline-block" }} />Decrease</div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 2, background: "#ffffff", border: "1px solid #ccc", flexShrink: 0, display: "inline-block" }} />No change</div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 2, background: "#1a9850", flexShrink: 0, display: "inline-block" }} />Increase</div>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
+                    )}
+                  </div>
+                )}
 
-              {/* ── Placeholder for future charts ── */}
-              <div style={{ background: t.card, border: `1px dashed ${t.border}`, borderRadius: 10, padding: "20px 16px", textAlign: "center" }}>
-                <div style={{ fontSize: 22, marginBottom: 8 }}>📈</div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: t.text, marginBottom: 4, fontFamily: "sans-serif" }}>Time Series</div>
-                <div style={{ fontSize: 11, color: t.muted, fontFamily: "sans-serif", lineHeight: 1.6 }}>Time series chart coming soon. Select an area and click "View Time Series" to analyse trends over time.</div>
+                {resultsData.isLandcover && resultsData.uniqueClasses?.length > 0 && (
+                  <div style={{ background: t.card, border: `1px solid ${t.border}`, borderRadius: 10, padding: "14px 16px" }}>
+                    <div style={{ fontSize: 11, color: t.muted, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10, fontFamily: "sans-serif" }}>Land Cover Classes</div>
+                    {resultsData.uniqueClasses.map((cls, i) => {
+                      const name = typeof cls === "string" ? cls : cls.class_name || `Class ${i}`;
+                      const color = LANDCOVER_PALETTE[name] || "#ccc";
+                      return (
+                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                          <span style={{ width: 14, height: 14, borderRadius: 3, background: color, flexShrink: 0, display: "inline-block", border: "1px solid rgba(0,0,0,0.1)" }} />
+                          <span style={{ fontSize: 12, color: t.text, fontFamily: "sans-serif" }}>{name.replace(/_/g, " ")}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* ── TIME SERIES TAB ── */}
+            {activeTab === "timeseries" && (
+              <div>
+                {tsLoading && (
+                  <div style={{ textAlign: "center", padding: "40px 0", color: t.muted, fontFamily: "sans-serif", fontSize: 13 }}>
+                    <div style={{ width: 32, height: 32, border: "3px solid #e2e8f0", borderTop: `3px solid ${t.accent}`, borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 12px" }} />
+                    Computing time series...
+                  </div>
+                )}
+                {!tsLoading && !tsData && (
+                  <div style={{ textAlign: "center", padding: "32px 16px", color: t.muted, fontFamily: "sans-serif", fontSize: 13, lineHeight: 1.6 }}>
+                    <div style={{ fontSize: 28, marginBottom: 10 }}>📈</div>
+                    Select a dataset, index and date range, then click <b>Time Series</b> in the sidebar.
+                  </div>
+                )}
+                {!tsLoading && tsData && (
+                  <>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: t.text, fontFamily: "sans-serif", marginBottom: 4 }}>
+                      {tsData.dataset} · {tsData.index} · {tsData.interval}
+                    </div>
+                    <div style={{ fontSize: 11, color: t.muted, fontFamily: "sans-serif", marginBottom: 16 }}>
+                      {tsData.data.length} data points
+                    </div>
+                    <ResponsiveContainer width="100%" height={220}>
+                      <LineChart data={tsData.data} margin={{ top: 4, right: 8, left: -20, bottom: 40 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke={t.border} />
+                        <XAxis dataKey="date" tick={{ fontSize: 9, fill: t.muted, fontFamily: "sans-serif" }} angle={-45} textAnchor="end" interval="preserveStartEnd" />
+                        <YAxis tick={{ fontSize: 10, fill: t.muted, fontFamily: "sans-serif" }} />
+                        <Tooltip
+                          contentStyle={{ background: t.sidebar, border: `1px solid ${t.border}`, borderRadius: 6, fontSize: 11, fontFamily: "sans-serif" }}
+                          labelStyle={{ color: t.text, fontWeight: 600 }}
+                          itemStyle={{ color: t.accent }}
+                        />
+                        <Line type="monotone" dataKey="value" stroke={t.accent} strokeWidth={2} dot={{ r: 2, fill: t.accent }} activeDot={{ r: 4 }} name={tsData.index} />
+                      </LineChart>
+                    </ResponsiveContainer>
+
+                    {/* Stats summary */}
+                    {(() => {
+                      const vals = tsData.data.map(d => d.value).filter(v => v != null);
+                      const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+                      const min = Math.min(...vals);
+                      const max = Math.max(...vals);
+                      return (
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginTop: 16 }}>
+                          {[{ label: "Min", value: min.toFixed(3) }, { label: "Mean", value: avg.toFixed(3) }, { label: "Max", value: max.toFixed(3) }].map(s => (
+                            <div key={s.label} style={{ background: t.card, border: `1px solid ${t.border}`, borderRadius: 8, padding: "10px 8px", textAlign: "center" }}>
+                              <div style={{ fontSize: 11, color: t.muted, fontFamily: "sans-serif", marginBottom: 2 }}>{s.label}</div>
+                              <div style={{ fontSize: 14, fontWeight: 700, color: t.accent, fontFamily: "sans-serif" }}>{s.value}</div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </>
+                )}
               </div>
-            </>
-          )}
+            )}
+
+            {/* ── CHANGE STATS TAB ── */}
+            {activeTab === "changestats" && (
+              <div>
+                {statsLoading && (
+                  <div style={{ textAlign: "center", padding: "40px 0", color: t.muted, fontFamily: "sans-serif", fontSize: 13 }}>
+                    <div style={{ width: 32, height: 32, border: "3px solid #e2e8f0", borderTop: `3px solid #0891b2`, borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 12px" }} />
+                    Computing land cover statistics...
+                  </div>
+                )}
+                {!statsLoading && !statsData && (
+                  <div style={{ textAlign: "center", padding: "32px 16px", color: t.muted, fontFamily: "sans-serif", fontSize: 13, lineHeight: 1.6 }}>
+                    <div style={{ fontSize: 28, marginBottom: 10 }}>📊</div>
+                    Select Land Cover dataset, enable Change Detection mode, then click <b>Land Cover Stats</b>.
+                  </div>
+                )}
+                {!statsLoading && statsData && (
+                  <>
+                    <div style={{ fontSize: 11, color: t.muted, fontFamily: "sans-serif", marginBottom: 12, lineHeight: 1.5 }}>
+                      <b style={{ color: t.text }}>Period 1:</b> {statsData.period1}<br/>
+                      <b style={{ color: t.text }}>Period 2:</b> {statsData.period2}
+                    </div>
+
+                    {/* Bar chart */}
+                    <ResponsiveContainer width="100%" height={200}>
+                      <BarChart data={statsData.rows} margin={{ top: 4, right: 8, left: -20, bottom: 40 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke={t.border} />
+                        <XAxis dataKey="class" tick={{ fontSize: 8, fill: t.muted, fontFamily: "sans-serif" }} angle={-40} textAnchor="end" interval={0} />
+                        <YAxis tick={{ fontSize: 9, fill: t.muted, fontFamily: "sans-serif" }} unit="%" />
+                        <Tooltip
+                          contentStyle={{ background: t.sidebar, border: `1px solid ${t.border}`, borderRadius: 6, fontSize: 11, fontFamily: "sans-serif" }}
+                          formatter={(val) => [`${val}%`]}
+                        />
+                        <Legend wrapperStyle={{ fontSize: 10, fontFamily: "sans-serif", paddingTop: 8 }} />
+                        <Bar dataKey="pct1" name="Period 1" fill="#60a5fa" radius={[2, 2, 0, 0]} />
+                        <Bar dataKey="pct2" name="Period 2" fill="#34d399" radius={[2, 2, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+
+                    {/* Table */}
+                    <div style={{ marginTop: 16, overflowX: "auto" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, fontFamily: "sans-serif" }}>
+                        <thead>
+                          <tr style={{ borderBottom: `2px solid ${t.border}` }}>
+                            <th style={{ textAlign: "left", padding: "6px 4px", color: t.muted }}>Class</th>
+                            <th style={{ textAlign: "right", padding: "6px 4px", color: t.muted }}>P1 %</th>
+                            <th style={{ textAlign: "right", padding: "6px 4px", color: t.muted }}>P2 %</th>
+                            <th style={{ textAlign: "right", padding: "6px 4px", color: t.muted }}>Δ%</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {statsData.rows.map((row, i) => (
+                            <tr key={i} style={{ borderBottom: `1px solid ${t.border}` }}>
+                              <td style={{ padding: "6px 4px", color: t.text, display: "flex", alignItems: "center", gap: 5 }}>
+                                <span style={{ width: 10, height: 10, borderRadius: 2, background: row.color, display: "inline-block", flexShrink: 0 }} />
+                                {row.class.replace(/_/g, " ")}
+                              </td>
+                              <td style={{ textAlign: "right", padding: "6px 4px", color: t.muted }}>{row.pct1}</td>
+                              <td style={{ textAlign: "right", padding: "6px 4px", color: t.muted }}>{row.pct2}</td>
+                              <td style={{ textAlign: "right", padding: "6px 4px", fontWeight: 600, color: row.change_pct > 0 ? "#16a34a" : row.change_pct < 0 ? "#dc2626" : t.muted }}>
+                                {row.change_pct > 0 ? "+" : ""}{row.change_pct}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Area table */}
+                    <div style={{ marginTop: 16, fontSize: 11, color: t.muted, fontFamily: "sans-serif" }}>
+                      <div style={{ fontWeight: 600, color: t.text, marginBottom: 8 }}>Area (km²)</div>
+                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, fontFamily: "sans-serif" }}>
+                        <thead>
+                          <tr style={{ borderBottom: `2px solid ${t.border}` }}>
+                            <th style={{ textAlign: "left", padding: "4px", color: t.muted }}>Class</th>
+                            <th style={{ textAlign: "right", padding: "4px", color: t.muted }}>P1 km²</th>
+                            <th style={{ textAlign: "right", padding: "4px", color: t.muted }}>P2 km²</th>
+                            <th style={{ textAlign: "right", padding: "4px", color: t.muted }}>Δ km²</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {statsData.rows.map((row, i) => (
+                            <tr key={i} style={{ borderBottom: `1px solid ${t.border}` }}>
+                              <td style={{ padding: "4px", color: t.text }}>{row.class.replace(/_/g, " ")}</td>
+                              <td style={{ textAlign: "right", padding: "4px", color: t.muted }}>{row.area1_km2}</td>
+                              <td style={{ textAlign: "right", padding: "4px", color: t.muted }}>{row.area2_km2}</td>
+                              <td style={{ textAlign: "right", padding: "4px", fontWeight: 600, color: row.change_km2 > 0 ? "#16a34a" : row.change_km2 < 0 ? "#dc2626" : t.muted }}>
+                                {row.change_km2 > 0 ? "+" : ""}{row.change_km2}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+          </div>
         </div>
       </div>
 
