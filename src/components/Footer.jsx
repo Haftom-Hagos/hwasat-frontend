@@ -21,18 +21,10 @@ export default function Footer() {
           marginBottom: 32,
         }}>
 
-          {/* Brand */}
+         {/* Brand */}
           <div style={{ minWidth: 200, maxWidth: 280 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-              <div style={{
-                width: 28, height: 28, borderRadius: 7,
-                background: "linear-gradient(135deg, #16a34a, #15803d)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 13, flexShrink: 0,
-              }}>🛰️</div>
-              <span style={{ fontWeight: 700, fontSize: 15, color: "#f1f5f9" }}>
-                Hwasat <span style={{ fontWeight: 400, color: "#64748b" }}>Geosense</span>
-              </span>
+              <img src="/logo.png" alt="Hwasat Geosense" style={{ height: 32, width: "auto" }} />
             </div>
             <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.7, margin: 0 }}>
               Satellite-derived environmental data made accessible for researchers,
