@@ -32,6 +32,16 @@ export default function Maps() {
   const [toYear, setToYear] = useState("");
   const [toMonth, setToMonth] = useState("");
   const [toDay, setToDay] = useState("");
+  // Change detection mode
+  const [changeMode, setChangeMode] = useState(false);
+
+  // Period 2 dates (for change detection)
+  const [fromYear2, setFromYear2] = useState("");
+  const [fromMonth2, setFromMonth2] = useState("");
+  const [fromDay2, setFromDay2] = useState("");
+  const [toYear2, setToYear2] = useState("");
+  const [toMonth2, setToMonth2] = useState("");
+  const [toDay2, setToDay2] = useState("");
 
   const [indexOptions, setIndexOptions] = useState([]);
   const [yearOptions, setYearOptions] = useState([]);
@@ -219,6 +229,23 @@ export default function Maps() {
       setMessage("End date must be after start date");
       return false;
     }
+    return true;
+  };
+
+  const validateChangeDates = () => {
+    if (!dataset || !fromYear || !toYear || !fromYear2 || !toYear2) return true;
+    const cfg = DATASET_CONFIG[dataset];
+    const minDate = new Date(cfg.minDate);
+    const from1 = new Date(`${fromYear}-${fromMonth || "01"}-${fromDay || "01"}`);
+    const to1 = new Date(`${toYear}-${toMonth || "12"}-${toDay || "31"}`);
+    const from2 = new Date(`${fromYear2}-${fromMonth2 || "01"}-${fromDay2 || "01"}`);
+    const to2 = new Date(`${toYear2}-${toMonth2 || "12"}-${toDay2 || "31"}`);
+    if (from1 < minDate || from2 < minDate) {
+      setMessage(`Start date must be after ${cfg.minDate} for ${cfg.label}`);
+      return false;
+    }
+    if (to1 < from1) { setMessage("Period 1 end date must be after start date"); return false; }
+    if (to2 < from2) { setMessage("Period 2 end date must be after start date"); return false; }
     return true;
   };
 
@@ -444,6 +471,44 @@ export default function Maps() {
     if (!geometry) return setMessage(useCustomGeoJSON ? "Upload a GeoJSON first" : "Select a feature first");
     if (!dataset || !index) return setMessage("Select dataset and index");
     if (!fromYear || !toYear) return setMessage("Select from and to years");
+
+    // Change detection mode
+    if (changeMode) {
+      if (dataset === 'landcover') return setMessage("Change detection is not available for land cover data");
+      if (!fromYear2 || !toYear2) return setMessage("Select Period 2 years");
+      if (!validateChangeDates()) return;
+      setLoading(true);
+      setMessage(null);
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 120000);
+        const res = await fetch(`${BACKEND_URL}/change_detection`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            dataset, index,
+            startDate1: `${fromYear}-${fromMonth || "01"}-${fromDay || "01"}`,
+            endDate1: `${toYear}-${toMonth || "12"}-${toDay || "31"}`,
+            startDate2: `${fromYear2}-${fromMonth2 || "01"}-${fromDay2 || "01"}`,
+            endDate2: `${toYear2}-${toMonth2 || "12"}-${toDay2 || "31"}`,
+            geometry,
+          }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+        addOverlayAndLegend(data, dataset);
+        setMessage("Change detection layer loaded successfully.");
+      } catch (e) {
+        setMessage(`Failed to load change detection: ${e.message}`);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    // Normal mode — existing code unchanged
     if (!validateDates()) return;
     setLoading(true);
     setMessage(null);
@@ -454,8 +519,7 @@ export default function Maps() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          dataset,
-          index,
+          dataset, index,
           startDate: `${fromYear}-${fromMonth || "01"}-${fromDay || "01"}`,
           endDate: `${toYear}-${toMonth || "12"}-${toDay || "31"}`,
           geometry,
@@ -478,7 +542,7 @@ export default function Maps() {
   };
 
   // ⬇️ Download
-  const handleDownloadClick = async () => {
+const handleDownloadClick = async () => {
     const geometry = useCustomGeoJSON ? customGeoJSON.geometry : selectedFeatureGeoJSON?.geometry;
     if (!geometry) return setMessage(useCustomGeoJSON ? "Upload a GeoJSON first" : "Select a feature first");
     if (!dataset || !index) return setMessage("Select dataset and index");
@@ -486,12 +550,9 @@ export default function Maps() {
     if (!validateDates()) return;
     setLoading(true);
     try {
-      // Determine selected feature name
       let selectedFeature = useCustomGeoJSON ? (customGeoJSON.properties?.name || "Custom") : (featureName || "Custom");
-      // Sanitize feature name for filename
       selectedFeature = selectedFeature.replace(/[\s\/\\]/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
 
-      // Format dates for filename (dd_mm_yy)
       const startDay = fromDay || "01";
       const startMonth = fromMonth || "01";
       const startYear = fromYear.slice(-2);
@@ -501,16 +562,59 @@ export default function Maps() {
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 1200000);
+
+      // Change detection download
+      if (changeMode) {
+        if (dataset === 'landcover') {
+          setMessage("Change detection download not available for land cover");
+          setLoading(false);
+          return;
+        }
+        if (!fromYear2 || !toYear2) {
+          setMessage("Select Period 2 years for change detection");
+          setLoading(false);
+          return;
+        }
+        const res = await fetch(`${BACKEND_URL}/download_change`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            dataset, index,
+            startDate1: `${fromYear}-${fromMonth || "01"}-${fromDay || "01"}`,
+            endDate1: `${toYear}-${toMonth || "12"}-${toDay || "31"}`,
+            startDate2: `${fromYear2}-${fromMonth2 || "01"}-${fromDay2 || "01"}`,
+            endDate2: `${toYear2}-${toMonth2 || "12"}-${toDay2 || "31"}`,
+            geometry, selectedFeature,
+          }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.detail || `Download failed: ${res.status}`);
+        }
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${dataset}_${index}_change_${startDay}${startMonth}${startYear}_vs_${fromDay2 || "01"}${fromMonth2 || "01"}${toYear2.slice(-2)}_${selectedFeature}.tif`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        setMessage("Change detection download successful!");
+        return;
+      }
+
+      // Normal download — existing code unchanged
       const res = await fetch(`${BACKEND_URL}/download`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          dataset,
-          index,
+          dataset, index,
           startDate: `${fromYear}-${startMonth}-${startDay}`,
           endDate: `${toYear}-${endMonth}-${endDay}`,
-          geometry,
-          selectedFeature,
+          geometry, selectedFeature,
         }),
         signal: controller.signal,
       });
@@ -652,35 +756,102 @@ export default function Maps() {
       </div>
 
       {/* Dates */}
-      <div className="flex gap-6 mb-3">
-        {[
-          { label: "From", y: fromYear, m: fromMonth, d: fromDay, setY: setFromYear, setM: setFromMonth, setD: setFromDay },
-          { label: "To", y: toYear, m: toMonth, d: toDay, setY: setToYear, setM: setToMonth, setD: setToDay },
-        ].map(({ label, y, m, d, setY, setM, setD }) => (
-          <div key={label}>
-            <div className="font-semibold mb-1">{label}</div>
-            <div className="flex gap-2">
-              <select value={y} onChange={(e) => setY(e.target.value)} className="border p-2 rounded w-20">
-                <option value="">Year</option>
-                {yearOptions.map((yr) => (
-                  <option key={yr} value={yr}>{yr}</option>
-                ))}
-              </select>
-              <select value={m} onChange={(e) => setM(e.target.value)} className="border p-2 rounded w-24">
-                <option value="">Month</option>
-                {monthOptions.map((mo) => (
-                  <option key={mo.value} value={mo.value}>{mo.label}</option>
-                ))}
-              </select>
-              <select value={d} onChange={(e) => setD(e.target.value)} className="border p-2 rounded w-18">
-                <option value="">Day</option>
-                {dayOptionsFor(y, m).map((dd) => (
-                  <option key={dd} value={dd}>{dd}</option>
-                ))}
-              </select>
-            </div>
+	  {/* Change Detection Toggle */}
+      <div className="flex items-center gap-3 mb-3">
+        <span className="text-sm font-medium text-gray-700">Mode:</span>
+        <button
+          onClick={() => { setChangeMode(false); setMessage(null); }}
+          className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${!changeMode ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600 hover:bg-gray-300"}`}
+        >
+          Single Date
+        </button>
+        <button
+          onClick={() => { setChangeMode(true); setMessage(null); }}
+          className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${changeMode ? "bg-orange-600 text-white" : "bg-gray-200 text-gray-600 hover:bg-gray-300"}`}
+        >
+          Change Detection
+        </button>
+      </div>
+
+      {/* Dates */}
+      <div className="flex gap-6 mb-3 flex-wrap">
+        {/* Period 1 (or single date) */}
+        <div>
+          <div className="font-semibold mb-1 text-sm">{changeMode ? "Period 1 — From" : "From"}</div>
+          <div className="flex gap-2">
+            <select value={fromYear} onChange={(e) => setFromYear(e.target.value)} className="border p-2 rounded w-20">
+              <option value="">Year</option>
+              {yearOptions.map((yr) => (<option key={yr} value={yr}>{yr}</option>))}
+            </select>
+            <select value={fromMonth} onChange={(e) => setFromMonth(e.target.value)} className="border p-2 rounded w-24">
+              <option value="">Month</option>
+              {monthOptions.map((mo) => (<option key={mo.value} value={mo.value}>{mo.label}</option>))}
+            </select>
+            <select value={fromDay} onChange={(e) => setFromDay(e.target.value)} className="border p-2 rounded w-18">
+              <option value="">Day</option>
+              {dayOptionsFor(fromYear, fromMonth).map((dd) => (<option key={dd} value={dd}>{dd}</option>))}
+            </select>
           </div>
-        ))}
+        </div>
+
+        <div>
+          <div className="font-semibold mb-1 text-sm">{changeMode ? "Period 1 — To" : "To"}</div>
+          <div className="flex gap-2">
+            <select value={toYear} onChange={(e) => setToYear(e.target.value)} className="border p-2 rounded w-20">
+              <option value="">Year</option>
+              {yearOptions.map((yr) => (<option key={yr} value={yr}>{yr}</option>))}
+            </select>
+            <select value={toMonth} onChange={(e) => setToMonth(e.target.value)} className="border p-2 rounded w-24">
+              <option value="">Month</option>
+              {monthOptions.map((mo) => (<option key={mo.value} value={mo.value}>{mo.label}</option>))}
+            </select>
+            <select value={toDay} onChange={(e) => setToDay(e.target.value)} className="border p-2 rounded w-18">
+              <option value="">Day</option>
+              {dayOptionsFor(toYear, toMonth).map((dd) => (<option key={dd} value={dd}>{dd}</option>))}
+            </select>
+          </div>
+        </div>
+
+        {/* Period 2 — only shown in change detection mode */}
+        {changeMode && (
+          <>
+            <div>
+              <div className="font-semibold mb-1 text-sm text-orange-600">Period 2 — From</div>
+              <div className="flex gap-2">
+                <select value={fromYear2} onChange={(e) => setFromYear2(e.target.value)} className="border p-2 rounded w-20 border-orange-300">
+                  <option value="">Year</option>
+                  {yearOptions.map((yr) => (<option key={yr} value={yr}>{yr}</option>))}
+                </select>
+                <select value={fromMonth2} onChange={(e) => setFromMonth2(e.target.value)} className="border p-2 rounded w-24 border-orange-300">
+                  <option value="">Month</option>
+                  {monthOptions.map((mo) => (<option key={mo.value} value={mo.value}>{mo.label}</option>))}
+                </select>
+                <select value={fromDay2} onChange={(e) => setFromDay2(e.target.value)} className="border p-2 rounded w-18 border-orange-300">
+                  <option value="">Day</option>
+                  {dayOptionsFor(fromYear2, fromMonth2).map((dd) => (<option key={dd} value={dd}>{dd}</option>))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <div className="font-semibold mb-1 text-sm text-orange-600">Period 2 — To</div>
+              <div className="flex gap-2">
+                <select value={toYear2} onChange={(e) => setToYear2(e.target.value)} className="border p-2 rounded w-20 border-orange-300">
+                  <option value="">Year</option>
+                  {yearOptions.map((yr) => (<option key={yr} value={yr}>{yr}</option>))}
+                </select>
+                <select value={toMonth2} onChange={(e) => setToMonth2(e.target.value)} className="border p-2 rounded w-24 border-orange-300">
+                  <option value="">Month</option>
+                  {monthOptions.map((mo) => (<option key={mo.value} value={mo.value}>{mo.label}</option>))}
+                </select>
+                <select value={toDay2} onChange={(e) => setToDay2(e.target.value)} className="border p-2 rounded w-18 border-orange-300">
+                  <option value="">Day</option>
+                  {dayOptionsFor(toYear2, toMonth2).map((dd) => (<option key={dd} value={dd}>{dd}</option>))}
+                </select>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Buttons */}
