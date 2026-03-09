@@ -24,7 +24,7 @@ export default function Footer() {
          {/* Brand */}
           <div style={{ minWidth: 200, maxWidth: 280 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-              <img src="/logo.png" alt="Hwasat Geosense" style={{ height: 32, width: "auto" }} />
+              <img src="images/logo.png" alt="Hwasat Geosense" style={{ height: 32, width: "auto" }} />
             </div>
             <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.7, margin: 0 }}>
               Satellite-derived environmental data made accessible for researchers,
