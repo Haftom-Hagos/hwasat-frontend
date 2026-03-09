@@ -24,10 +24,18 @@ export default function Navbar() {
         padding: "0 24px", height: 56,
       }}>
 
-        {/* ── Logo ── */}
-        <Link to="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
-          <img src="images/logo.png" alt="Hwasat Geosense" style={{ height: 36, width: "auto" }} />
-        </Link>
+      {/* ── Logo ── */}
+      <Link to="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
+        <img src="images/logo.png" alt="Hwasat Geosense" style={{ height: 36, width: "auto" }} />
+        <div>
+          <span style={{ fontWeight: 700, fontSize: 15, color: "#f1f5f9", letterSpacing: "-0.01em" }}>
+            Hwasat
+          </span>
+          <span style={{ fontWeight: 400, fontSize: 13, color: "#64748b", marginLeft: 6 }}>
+            Geosense
+          </span>
+        </div>
+      </Link>
 
         {/* ── Desktop Nav ── */}
         <nav style={{ display: "flex", alignItems: "center", gap: 4 }} className="desktop-nav">
