@@ -552,6 +552,35 @@ export default function Maps() {
     finally { setStatsLoading(false); }
   };
 
+  // ── Export CSV ──
+  const exportTimeSeriesCSV = () => {
+    if (!tsData) return;
+    const rows = [["Date", tsData.index], ...tsData.data.map(d => [d.date, d.value])];
+    const csv = rows.map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${tsData.dataset}_${tsData.index}_timeseries.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportStatsCSV = () => {
+    if (!statsData) return;
+    const headers = ["Class", "Period1_pct", "Period2_pct", "Change_pct", "Period1_km2", "Period2_km2", "Change_km2"];
+    const rows = statsData.rows.map(r => [
+      r.class, r.pct1, r.pct2, r.change_pct, r.area1_km2, r.area2_km2, r.change_km2
+    ]);
+    const csv = [headers, ...rows].map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `landcover_change_${statsData.period1}_vs_${statsData.period2}.csv`.replace(/\s/g, "_");
+    a.click();
+    URL.revokeObjectURL(url);
+  };
   const SIDEBAR_W = 300;
 
   return (
@@ -780,6 +809,17 @@ export default function Maps() {
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
         )}
+        {/* ── Results panel toggle button ── */}
+      <button onClick={() => setResultsOpen(!resultsOpen)} style={{
+        position: "absolute", right: resultsOpen ? 320 : 0, top: "50%", transform: "translateY(-50%)",
+        zIndex: 200, background: t.sidebar, border: `1px solid ${t.border}`,
+        borderRight: "none",
+        borderRadius: "6px 0 0 6px",
+        padding: "12px 5px", cursor: "pointer", color: t.muted,
+        transition: "right 0.35s ease", boxShadow: "-2px 0 8px rgba(0,0,0,0.1)",
+      }}>
+        <Icon d={resultsOpen ? icons.chevronR : icons.chevronL} size={14} />
+      </button>
       </div>
 
       {/* ── Sliding Results Panel ── */}
@@ -929,6 +969,17 @@ export default function Maps() {
                         </div>
                       );
                     })()}
+
+                    {/* Export CSV */}
+                    <button onClick={exportTimeSeriesCSV} style={{
+                      marginTop: 12, width: "100%", background: t.card,
+                      border: `1px solid ${t.border}`, borderRadius: 7,
+                      padding: "8px 12px", fontSize: 12, fontWeight: 600,
+                      color: t.muted, cursor: "pointer", fontFamily: "sans-serif",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                    }}>
+                      <Icon d={icons.download} size={13} /> Export CSV
+                    </button>
                   </>
                 )}
               </div>
@@ -1025,8 +1076,19 @@ export default function Maps() {
                             </tr>
                           ))}
                         </tbody>
-                      </table>
+                     </table>
                     </div>
+
+                    {/* Export CSV */}
+                    <button onClick={exportStatsCSV} style={{
+                      marginTop: 12, width: "100%", background: t.card,
+                      border: `1px solid ${t.border}`, borderRadius: 7,
+                      padding: "8px 12px", fontSize: 12, fontWeight: 600,
+                      color: t.muted, cursor: "pointer", fontFamily: "sans-serif",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                    }}>
+                      <Icon d={icons.download} size={13} /> Export CSV
+                    </button>
                   </>
                 )}
               </div>
