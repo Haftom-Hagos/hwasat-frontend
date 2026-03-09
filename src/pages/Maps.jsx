@@ -470,7 +470,7 @@ export default function Maps() {
   const SIDEBAR_W = 300;
 
   return (
-    <div style={{ display: "flex", height: "calc(100vh - 64px)", background: t.bg, fontFamily: "'Georgia', serif", position: "relative", overflow: "hidden" }}>
+    <div style={{ display: "flex", height: "calc(100vh - 56px)", background: t.bg, fontFamily: "'Georgia', serif", position: "relative", overflow: "hidden" }}>
 
       {/* ── Collapsible Sidebar ── */}
       <div style={{
