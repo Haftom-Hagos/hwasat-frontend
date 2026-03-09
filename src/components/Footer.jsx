@@ -15,25 +15,25 @@ export default function Footer() {
         {/* Left Section */}
         <div className="text-center md:text-left space-y-1">
           <div className="text-sm">
-            © {new Date().getFullYear()}{" "}
+            © 2025-{new Date().getFullYear()}{" "}
             <span className="font-semibold text-white">Hwasat Geosense</span>
           </div>
           <div className="text-xs text-gray-400">All rights reserved</div>
-			{/*<div className="text-xs text-gray-400 mt-1">
+			<div className="text-xs text-gray-400 mt-1">
             Contact:{" "}
             <a
-              href="mailto:admin@ethiosathub.com"
+              href="mailto:admin@hwasat.com"
               className="text-gray-300 hover:text-green-400 transition-colors"
             >
-              admin@ethiosathub.com
+              admin@hwasat.com
             </a>
-          </div*/}
+          </div
         </div>
 
         {/* Center Section */}
         <div className="text-center">
           <h3 className="text-white font-semibold text-lg mb-1">
-            Remote Sensing & Environmental Consultancy
+            Remote Sensing & Environmental Services
           </h3>
           <p className="text-gray-400 text-sm">
             Empowering data-driven environmental decisions
