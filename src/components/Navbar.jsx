@@ -26,7 +26,7 @@ export default function Navbar() {
 
         {/* ── Logo ── */}
         <Link to="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
-          <img src="/logo.png" alt="Hwasat Geosense" style={{ height: 36, width: "auto" }} />
+          <img src="images/logo.png" alt="Hwasat Geosense" style={{ height: 36, width: "auto" }} />
         </Link>
 
         {/* ── Desktop Nav ── */}
