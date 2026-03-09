@@ -774,47 +774,50 @@ const handleDownloadClick = async () => {
       </div>
 
       {/* Dates */}
-      <div className="flex gap-6 mb-3 flex-wrap">
-        {/* Period 1 (or single date) */}
-        <div>
-          <div className="font-semibold mb-1 text-sm">{changeMode ? "Period 1 — From" : "From"}</div>
-          <div className="flex gap-2">
-            <select value={fromYear} onChange={(e) => setFromYear(e.target.value)} className="border p-2 rounded w-20">
-              <option value="">Year</option>
-              {yearOptions.map((yr) => (<option key={yr} value={yr}>{yr}</option>))}
-            </select>
-            <select value={fromMonth} onChange={(e) => setFromMonth(e.target.value)} className="border p-2 rounded w-24">
-              <option value="">Month</option>
-              {monthOptions.map((mo) => (<option key={mo.value} value={mo.value}>{mo.label}</option>))}
-            </select>
-            <select value={fromDay} onChange={(e) => setFromDay(e.target.value)} className="border p-2 rounded w-18">
-              <option value="">Day</option>
-              {dayOptionsFor(fromYear, fromMonth).map((dd) => (<option key={dd} value={dd}>{dd}</option>))}
-            </select>
-          </div>
-        </div>
+      <div className="flex flex-col gap-3 mb-3">
 
-        <div>
-          <div className="font-semibold mb-1 text-sm">{changeMode ? "Period 1 — To" : "To"}</div>
-          <div className="flex gap-2">
-            <select value={toYear} onChange={(e) => setToYear(e.target.value)} className="border p-2 rounded w-20">
-              <option value="">Year</option>
-              {yearOptions.map((yr) => (<option key={yr} value={yr}>{yr}</option>))}
-            </select>
-            <select value={toMonth} onChange={(e) => setToMonth(e.target.value)} className="border p-2 rounded w-24">
-              <option value="">Month</option>
-              {monthOptions.map((mo) => (<option key={mo.value} value={mo.value}>{mo.label}</option>))}
-            </select>
-            <select value={toDay} onChange={(e) => setToDay(e.target.value)} className="border p-2 rounded w-18">
-              <option value="">Day</option>
-              {dayOptionsFor(toYear, toMonth).map((dd) => (<option key={dd} value={dd}>{dd}</option>))}
-            </select>
+        {/* Period 1 row */}
+        <div className="flex gap-6 flex-wrap">
+          <div>
+            <div className="font-semibold mb-1 text-sm">{changeMode ? "Period 1 — From" : "From"}</div>
+            <div className="flex gap-2">
+              <select value={fromYear} onChange={(e) => setFromYear(e.target.value)} className="border p-2 rounded w-20">
+                <option value="">Year</option>
+                {yearOptions.map((yr) => (<option key={yr} value={yr}>{yr}</option>))}
+              </select>
+              <select value={fromMonth} onChange={(e) => setFromMonth(e.target.value)} className="border p-2 rounded w-24">
+                <option value="">Month</option>
+                {monthOptions.map((mo) => (<option key={mo.value} value={mo.value}>{mo.label}</option>))}
+              </select>
+              <select value={fromDay} onChange={(e) => setFromDay(e.target.value)} className="border p-2 rounded w-18">
+                <option value="">Day</option>
+                {dayOptionsFor(fromYear, fromMonth).map((dd) => (<option key={dd} value={dd}>{dd}</option>))}
+              </select>
+            </div>
           </div>
-        </div>
 
-        {/* Period 2 — only shown in change detection mode */}
+          <div>
+            <div className="font-semibold mb-1 text-sm">{changeMode ? "Period 1 — To" : "To"}</div>
+            <div className="flex gap-2">
+              <select value={toYear} onChange={(e) => setToYear(e.target.value)} className="border p-2 rounded w-20">
+                <option value="">Year</option>
+                {yearOptions.map((yr) => (<option key={yr} value={yr}>{yr}</option>))}
+              </select>
+              <select value={toMonth} onChange={(e) => setToMonth(e.target.value)} className="border p-2 rounded w-24">
+                <option value="">Month</option>
+                {monthOptions.map((mo) => (<option key={mo.value} value={mo.value}>{mo.label}</option>))}
+              </select>
+              <select value={toDay} onChange={(e) => setToDay(e.target.value)} className="border p-2 rounded w-18">
+                <option value="">Day</option>
+                {dayOptionsFor(toYear, toMonth).map((dd) => (<option key={dd} value={dd}>{dd}</option>))}
+              </select>
+            </div>
+          </div>
+        </div> {/* end Period 1 row */}
+
+        {/* Period 2 row — only shown in change detection mode */}
         {changeMode && (
-          <>
+          <div className="flex gap-6 flex-wrap border-l-4 border-orange-400 pl-3">
             <div>
               <div className="font-semibold mb-1 text-sm text-orange-600">Period 2 — From</div>
               <div className="flex gap-2">
@@ -850,12 +853,19 @@ const handleDownloadClick = async () => {
                 </select>
               </div>
             </div>
-          </>
+          </div> 
         )}
+
       </div>
 
       {/* Buttons */}
-      <div className="flex gap-3">
+	{changeMode && (
+  	<div className="w-full mb-2 text-sm text-gray-500 bg-orange-50 border border-orange-200 rounded px-3 py-2">
+  	  📊 Result shows: <b className="text-orange-700">Period 2 minus Period 1</b> — 
+  	  🟢 Green = increase &nbsp;|&nbsp; ⚪ White = no change &nbsp;|&nbsp; 🔴 Red = decrease
+  	</div>
+	)}
+	<div className="flex gap-3">
         <button onClick={handleViewSelection} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" disabled={loading}>
           View Selection
         </button>
