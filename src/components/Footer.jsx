@@ -113,7 +113,7 @@ export default function Footer() {
           gap: 12,
         }}>
           <span style={{ fontSize: 12, color: "#475569" }}>
-            © 2025–{new Date().getFullYear()} Hwasat Geosense · Mekelle, Ethiopia · All rights reserved
+            © 2025–{new Date().getFullYear()} Hwasat Geosense · Kassel, Germany · All rights reserved
           </span>
           <span style={{ fontSize: 12, color: "#334155" }}>
             Powered by Google Earth Engine · ESA Copernicus · NASA
