@@ -83,6 +83,11 @@ export default function Maps() {
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsData, setStatsData] = useState(null);
   const [activeTab, setActiveTab] = useState("info"); // "info" | "timeseries" | "changestats"
+  const [changeMapData, setChangeMapData] = useState(null);
+  const [changeMapLoading, setChangeMapLoading] = useState(false);
+  // seasonal month range
+  const [seasonStart, setSeasonStart] = useState("06");
+  const [seasonEnd, setSeasonEnd] = useState("08");
 
   // ── Theme tokens ──
   const t = darkMode ? {
@@ -331,6 +336,7 @@ export default function Maps() {
       visParams: data.vis_params || {},
       uniqueClasses: data.unique_classes || null,
       isLandcover: datasetKey === "landcover",
+      metadata: data.metadata || null,
     });
     setResultsOpen(true);
   };
@@ -510,7 +516,7 @@ export default function Maps() {
       const res = await fetch(`${BACKEND_URL}/time_series`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          dataset, index, interval: tsInterval,
+          dataset, index, interval: tsInterval === 'seasonal' ? `seasonal_${seasonStart}_${seasonEnd}` : tsInterval,
           startDate: `${fromYear}-${fromMonth || "01"}-${fromDay || "01"}`,
           endDate:   `${toYear}-${toMonth || "12"}-${toDay || "31"}`,
           geometry,
@@ -552,35 +558,37 @@ export default function Maps() {
     finally { setStatsLoading(false); }
   };
 
-  // ── Export CSV ──
-  const exportTimeSeriesCSV = () => {
-    if (!tsData) return;
-    const rows = [["Date", tsData.index], ...tsData.data.map(d => [d.date, d.value])];
-    const csv = rows.map(r => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${tsData.dataset}_${tsData.index}_timeseries.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+
+  // ── Land Cover Change Map ──
+  const handleLandcoverChangeMap = async () => {
+    const geometry = useCustomGeoJSON ? customGeoJSON?.geometry : selectedFeatureGeoJSON?.geometry;
+    if (!geometry) return setMessage(useCustomGeoJSON ? "Upload a GeoJSON first" : "Select a feature first");
+    if (!fromYear || !toYear || !fromYear2 || !toYear2) return setMessage("Select both period date ranges");
+    setChangeMapLoading(true);
+    setChangeMapData(null);
+    setMessage(null);
+    try {
+      const res = await fetch(`${BACKEND_URL}/landcover_change_map`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          startDate1: `${fromYear}-${fromMonth || "01"}-${fromDay || "01"}`,
+          endDate1:   `${toYear}-${toMonth || "12"}-${toDay || "31"}`,
+          startDate2: `${fromYear2}-${fromMonth2 || "01"}-${fromDay2 || "01"}`,
+          endDate2:   `${toYear2}-${toMonth2 || "12"}-${toDay2 || "31"}`,
+          geometry,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+      addOverlayAndLegend(data, "landcover");
+      setChangeMapData(data);
+      setActiveTab("changemap");
+      setResultsOpen(true);
+      setMessage("Land cover change map loaded.");
+    } catch (e) { setMessage(`Change map failed: ${e.message}`); }
+    finally { setChangeMapLoading(false); }
   };
 
-  const exportStatsCSV = () => {
-    if (!statsData) return;
-    const headers = ["Class", "Period1_pct", "Period2_pct", "Change_pct", "Period1_km2", "Period2_km2", "Change_km2"];
-    const rows = statsData.rows.map(r => [
-      r.class, r.pct1, r.pct2, r.change_pct, r.area1_km2, r.area2_km2, r.change_km2
-    ]);
-    const csv = [headers, ...rows].map(r => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `landcover_change_${statsData.period1}_vs_${statsData.period2}.csv`.replace(/\s/g, "_");
-    a.click();
-    URL.revokeObjectURL(url);
-  };
   const SIDEBAR_W = 300;
 
   return (
@@ -740,25 +748,49 @@ export default function Maps() {
 
             {/* Time series — only for non-landcover in single date mode */}
             {dataset !== "landcover" && !changeMode && (
-              <div style={{ display: "flex", gap: 6 }}>
-                <button onClick={handleTimeSeries} disabled={tsLoading || loading}
-                  style={{ flex: 1, background: "#7c3aed", color: "#fff", border: "none", borderRadius: 7, padding: "10px 8px", fontSize: 12, fontWeight: 600, cursor: (tsLoading || loading) ? "not-allowed" : "pointer", opacity: (tsLoading || loading) ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "sans-serif" }}>
-                  📈 {tsLoading ? "Loading..." : "Time Series"}
-                </button>
-                <select value={tsInterval} onChange={e => setTsInterval(e.target.value)}
-                  style={{ background: t.input, border: `1px solid ${t.inputBorder}`, color: t.inputText, borderRadius: 7, padding: "0 8px", fontSize: 12, fontFamily: "sans-serif", cursor: "pointer" }}>
-                  <option value="monthly">Monthly</option>
-                  <option value="yearly">Yearly</option>
-                </select>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <button onClick={handleTimeSeries} disabled={tsLoading || loading}
+                    style={{ flex: 1, background: "#7c3aed", color: "#fff", border: "none", borderRadius: 7, padding: "10px 8px", fontSize: 12, fontWeight: 600, cursor: (tsLoading || loading) ? "not-allowed" : "pointer", opacity: (tsLoading || loading) ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "sans-serif" }}>
+                    📈 {tsLoading ? "Loading..." : "Time Series"}
+                  </button>
+                  <select value={tsInterval} onChange={e => setTsInterval(e.target.value)}
+                    style={{ background: t.input, border: `1px solid ${t.inputBorder}`, color: t.inputText, borderRadius: 7, padding: "0 8px", fontSize: 12, fontFamily: "sans-serif", cursor: "pointer" }}>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                    <option value="seasonal">Seasonal</option>
+                  </select>
+                </div>
+                {/* Seasonal month range picker */}
+                {tsInterval === "seasonal" && (
+                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                    <span style={{ fontSize: 11, color: t.muted, fontFamily: "sans-serif", whiteSpace: "nowrap" }}>Season:</span>
+                    <select value={seasonStart} onChange={e => setSeasonStart(e.target.value)}
+                      style={{ ...{background: t.input, border: `1px solid ${t.inputBorder}`, color: t.inputText, padding: "5px 6px", borderRadius: 6, fontSize: 11, fontFamily: "sans-serif"}, flex: 1 }}>
+                      {monthOptions.map(mo => <option key={mo.value} value={mo.value}>{mo.label}</option>)}
+                    </select>
+                    <span style={{ fontSize: 11, color: t.muted, fontFamily: "sans-serif" }}>→</span>
+                    <select value={seasonEnd} onChange={e => setSeasonEnd(e.target.value)}
+                      style={{ ...{background: t.input, border: `1px solid ${t.inputBorder}`, color: t.inputText, padding: "5px 6px", borderRadius: 6, fontSize: 11, fontFamily: "sans-serif"}, flex: 1 }}>
+                      {monthOptions.map(mo => <option key={mo.value} value={mo.value}>{mo.label}</option>)}
+                    </select>
+                  </div>
+                )}
               </div>
             )}
 
-            {/* Land cover change stats — only in change detection mode with landcover */}
+            {/* Land cover buttons — only in change detection mode with landcover */}
             {dataset === "landcover" && changeMode && (
-              <button onClick={handleLandcoverStats} disabled={statsLoading || loading}
-                style={{ background: "#0891b2", color: "#fff", border: "none", borderRadius: 7, padding: "10px 16px", fontSize: 12, fontWeight: 600, cursor: (statsLoading || loading) ? "not-allowed" : "pointer", opacity: (statsLoading || loading) ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "sans-serif" }}>
-                📊 {statsLoading ? "Computing..." : "Land Cover Stats"}
-              </button>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <button onClick={handleLandcoverStats} disabled={statsLoading || loading}
+                  style={{ background: "#0891b2", color: "#fff", border: "none", borderRadius: 7, padding: "10px 16px", fontSize: 12, fontWeight: 600, cursor: (statsLoading || loading) ? "not-allowed" : "pointer", opacity: (statsLoading || loading) ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "sans-serif" }}>
+                  📊 {statsLoading ? "Computing..." : "Land Cover Stats"}
+                </button>
+                <button onClick={handleLandcoverChangeMap} disabled={changeMapLoading || loading}
+                  style={{ background: "#b45309", color: "#fff", border: "none", borderRadius: 7, padding: "10px 16px", fontSize: 12, fontWeight: 600, cursor: (changeMapLoading || loading) ? "not-allowed" : "pointer", opacity: (changeMapLoading || loading) ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "sans-serif" }}>
+                  🗺️ {changeMapLoading ? "Computing..." : "Change Map"}
+                </button>
+              </div>
             )}
 
             <button onClick={handleDownloadClick} disabled={loading}
@@ -809,17 +841,18 @@ export default function Maps() {
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
         )}
+
         {/* ── Results panel toggle button ── */}
-      <button onClick={() => setResultsOpen(!resultsOpen)} style={{
-        position: "absolute", right: resultsOpen ? 320 : 0, top: "50%", transform: "translateY(-50%)",
-        zIndex: 200, background: t.sidebar, border: `1px solid ${t.border}`,
-        borderRight: "none",
-        borderRadius: "6px 0 0 6px",
-        padding: "12px 5px", cursor: "pointer", color: t.muted,
-        transition: "right 0.35s ease", boxShadow: "-2px 0 8px rgba(0,0,0,0.1)",
-      }}>
-        <Icon d={resultsOpen ? icons.chevronR : icons.chevronL} size={14} />
-      </button>
+        <button onClick={() => setResultsOpen(!resultsOpen)} style={{
+          position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)",
+          zIndex: 200, background: t.sidebar, border: `1px solid ${t.border}`,
+          borderRight: "none",
+          borderRadius: "6px 0 0 6px",
+          padding: "12px 5px", cursor: "pointer", color: t.muted,
+          boxShadow: "-2px 0 8px rgba(0,0,0,0.1)",
+        }}>
+          <Icon d={resultsOpen ? icons.chevronR : icons.chevronL} size={14} />
+        </button>
       </div>
 
       {/* ── Sliding Results Panel ── */}
@@ -850,6 +883,7 @@ export default function Maps() {
               { key: "info", label: "Layer Info" },
               { key: "timeseries", label: "📈 Time Series", hide: dataset === "landcover" },
               { key: "changestats", label: "📊 Change Stats", hide: !(dataset === "landcover" && changeMode) },
+              { key: "changemap", label: "🗺️ Change Map", hide: !(dataset === "landcover" && changeMode) },
             ].filter(tab => !tab.hide).map(tab => (
               <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
                 padding: "7px 12px", fontSize: 11, fontWeight: 600, border: "none", cursor: "pointer",
@@ -898,7 +932,7 @@ export default function Maps() {
                 )}
 
                 {resultsData.isLandcover && resultsData.uniqueClasses?.length > 0 && (
-                  <div style={{ background: t.card, border: `1px solid ${t.border}`, borderRadius: 10, padding: "14px 16px" }}>
+                  <div style={{ background: t.card, border: `1px solid ${t.border}`, borderRadius: 10, padding: "14px 16px", marginBottom: 16 }}>
                     <div style={{ fontSize: 11, color: t.muted, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10, fontFamily: "sans-serif" }}>Land Cover Classes</div>
                     {resultsData.uniqueClasses.map((cls, i) => {
                       const name = typeof cls === "string" ? cls : cls.class_name || `Class ${i}`;
@@ -910,6 +944,24 @@ export default function Maps() {
                         </div>
                       );
                     })}
+                  </div>
+                )}
+
+                {/* ── Metadata card ── */}
+                {resultsData.metadata && (
+                  <div style={{ background: t.card, border: `1px solid ${t.border}`, borderRadius: 10, padding: "14px 16px" }}>
+                    <div style={{ fontSize: 11, color: t.muted, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10, fontFamily: "sans-serif" }}>Dataset Info</div>
+                    {[
+                      { label: "Resolution", value: resultsData.metadata.resolution },
+                      { label: "Images Used", value: resultsData.metadata.images_used != null ? resultsData.metadata.images_used : "N/A" },
+                      { label: "Avg Cloud Cover", value: resultsData.metadata.cloud_cover_pct != null ? `${resultsData.metadata.cloud_cover_pct}%` : "N/A" },
+                      { label: "Date Range", value: `${resultsData.metadata.start} → ${resultsData.metadata.end}` },
+                    ].map(item => (
+                      <div key={item.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, fontFamily: "sans-serif" }}>
+                        <span style={{ fontSize: 11, color: t.muted }}>{item.label}</span>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: t.text }}>{item.value}</span>
+                      </div>
+                    ))}
                   </div>
                 )}
               </>
@@ -969,17 +1021,64 @@ export default function Maps() {
                         </div>
                       );
                     })()}
+                  </>
+                )}
+              </div>
+            )}
 
-                    {/* Export CSV */}
-                    <button onClick={exportTimeSeriesCSV} style={{
-                      marginTop: 12, width: "100%", background: t.card,
-                      border: `1px solid ${t.border}`, borderRadius: 7,
-                      padding: "8px 12px", fontSize: 12, fontWeight: 600,
-                      color: t.muted, cursor: "pointer", fontFamily: "sans-serif",
-                      display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                    }}>
-                      <Icon d={icons.download} size={13} /> Export CSV
-                    </button>
+            {/* ── CHANGE MAP TAB ── */}
+            {activeTab === "changemap" && (
+              <div>
+                {changeMapLoading && (
+                  <div style={{ textAlign: "center", padding: "40px 0", color: t.muted, fontFamily: "sans-serif", fontSize: 13 }}>
+                    <div style={{ width: 32, height: 32, border: "3px solid #e2e8f0", borderTop: "3px solid #b45309", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 12px" }} />
+                    Computing change map...
+                  </div>
+                )}
+                {!changeMapLoading && !changeMapData && (
+                  <div style={{ textAlign: "center", padding: "32px 16px", color: t.muted, fontFamily: "sans-serif", fontSize: 13, lineHeight: 1.6 }}>
+                    <div style={{ fontSize: 28, marginBottom: 10 }}>🗺️</div>
+                    Click <b>Change Map</b> in the sidebar to generate a stable vs changed map.
+                  </div>
+                )}
+                {!changeMapLoading && changeMapData && (
+                  <>
+                    {/* Legend */}
+                    <div style={{ background: t.card, border: `1px solid ${t.border}`, borderRadius: 10, padding: "14px 16px", marginBottom: 16 }}>
+                      <div style={{ fontSize: 11, color: t.muted, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10, fontFamily: "sans-serif" }}>Map Legend</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <span style={{ width: 16, height: 16, borderRadius: 3, background: "#9ca3af", display: "inline-block", flexShrink: 0 }} />
+                          <span style={{ fontSize: 12, color: t.text, fontFamily: "sans-serif" }}>Stable — no land cover change</span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <span style={{ width: 16, height: 16, borderRadius: 3, background: "#dc2626", display: "inline-block", flexShrink: 0 }} />
+                          <span style={{ fontSize: 12, color: t.text, fontFamily: "sans-serif" }}>Changed — land cover class changed</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Summary stats */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
+                      <div style={{ background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: 10, padding: "14px 12px", textAlign: "center" }}>
+                        <div style={{ fontSize: 11, color: "#64748b", fontFamily: "sans-serif", marginBottom: 4 }}>Stable</div>
+                        <div style={{ fontSize: 22, fontWeight: 700, color: "#6b7280", fontFamily: "sans-serif" }}>{changeMapData.pct_stable}%</div>
+                      </div>
+                      <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "14px 12px", textAlign: "center" }}>
+                        <div style={{ fontSize: 11, color: "#64748b", fontFamily: "sans-serif", marginBottom: 4 }}>Changed</div>
+                        <div style={{ fontSize: 22, fontWeight: 700, color: "#dc2626", fontFamily: "sans-serif" }}>{changeMapData.pct_changed}%</div>
+                      </div>
+                    </div>
+
+                    {/* Visual bar */}
+                    <div style={{ borderRadius: 6, overflow: "hidden", height: 12, display: "flex", marginBottom: 8 }}>
+                      <div style={{ width: `${changeMapData.pct_stable}%`, background: "#9ca3af", transition: "width 0.5s" }} />
+                      <div style={{ width: `${changeMapData.pct_changed}%`, background: "#dc2626", transition: "width 0.5s" }} />
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: t.muted, fontFamily: "sans-serif", marginBottom: 4 }}>
+                      <span>Stable {changeMapData.pct_stable}%</span>
+                      <span>Changed {changeMapData.pct_changed}%</span>
+                    </div>
                   </>
                 )}
               </div>
@@ -1076,19 +1175,8 @@ export default function Maps() {
                             </tr>
                           ))}
                         </tbody>
-                     </table>
+                      </table>
                     </div>
-
-                    {/* Export CSV */}
-                    <button onClick={exportStatsCSV} style={{
-                      marginTop: 12, width: "100%", background: t.card,
-                      border: `1px solid ${t.border}`, borderRadius: 7,
-                      padding: "8px 12px", fontSize: 12, fontWeight: 600,
-                      color: t.muted, cursor: "pointer", fontFamily: "sans-serif",
-                      display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                    }}>
-                      <Icon d={icons.download} size={13} /> Export CSV
-                    </button>
                   </>
                 )}
               </div>
