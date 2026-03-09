@@ -62,7 +62,7 @@ export default function Navbar() {
             </NavLink>
           ))}
 
-          <Link to="/maps" style={{
+          {/*<Link to="/maps" style={{
             marginLeft: 8,
             padding: "7px 16px",
             borderRadius: 6,
@@ -77,7 +77,7 @@ export default function Navbar() {
             onMouseLeave={e => e.target.style.background = "#16a34a"}
           >
             Launch →
-          </Link>
+          </Link>*/}
         </nav>
 
         {/* ── Hamburger (mobile) ── */}
