@@ -1,114 +1,130 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
-import logo from "/images/logo.png";  
-import { Link } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 
 const links = [
   { to: "/", label: "Home" },
   { to: "/maps", label: "Dashboard" },
   { to: "/data", label: "Data Portal" },
-  { to: "/about", label: "About" }
-  
+  { to: "/about", label: "About" },
 ];
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const toggleMenu = () => setMenuOpen(!menuOpen);
-
   return (
-    <header className="w-full shadow-lg sticky top-0 z-50 bg-gray-800">
-      <div className="px-4 md:px-6 lg:px-8 py-3 flex items-center justify-between">
+    <header style={{
+      position: "sticky", top: 0, zIndex: 1000,
+      background: "#0f172a",
+      borderBottom: "1px solid #1e293b",
+      boxShadow: "0 1px 12px rgba(0,0,0,0.4)",
+      fontFamily: "sans-serif",
+    }}>
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "0 24px", height: 56,
+      }}>
 
-        {/* Logo & Title */}
-    <Link to="/" className="flex items-center gap-3">
-      {/*<img
-        src={logo}
-        alt="Logo"
-        className="w-10 h-10 object-contain"
-      />*/}
-      <div className="text-xl font-semibold text-white">
-      Hwasat Geosense
-      </div>
-    </Link>
-        
-        {/* Desktop Menu */}
-        <nav className="hidden md:flex gap-4 items-center">
+        {/* ── Logo ── */}
+        <Link to="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{
+            width: 30, height: 30, borderRadius: 8,
+            background: "linear-gradient(135deg, #16a34a, #15803d)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 14, flexShrink: 0,
+          }}>
+            🛰️
+          </div>
+          <div>
+            <span style={{ fontWeight: 700, fontSize: 15, color: "#f1f5f9", letterSpacing: "-0.01em" }}>
+              Hwasat
+            </span>
+            <span style={{ fontWeight: 400, fontSize: 13, color: "#64748b", marginLeft: 6 }}>
+              Geosense
+            </span>
+          </div>
+        </Link>
+
+        {/* ── Desktop Nav ── */}
+        <nav style={{ display: "flex", alignItems: "center", gap: 4 }} className="desktop-nav">
           {links.map((l) => (
-            <NavLink
-              key={l.to}
-              to={l.to}
-              className={({ isActive }) =>
-                `px-3 py-2 rounded-md text-sm font-medium transition duration-200 ${
-                  isActive
-                    ? "bg-white text-gray-800"
-                    : "text-white hover:bg-gray-500 hover:text-white"
-                }`
-              }
-            >
+            <NavLink key={l.to} to={l.to} style={({ isActive }) => ({
+              padding: "6px 14px",
+              borderRadius: 6,
+              fontSize: 13,
+              fontWeight: 500,
+              textDecoration: "none",
+              transition: "all 0.15s",
+              background: isActive ? "rgba(22,163,74,0.15)" : "transparent",
+              color: isActive ? "#4ade80" : "#94a3b8",
+              border: isActive ? "1px solid rgba(22,163,74,0.3)" : "1px solid transparent",
+            })}>
               {l.label}
             </NavLink>
           ))}
+
+          <Link to="/maps" style={{
+            marginLeft: 8,
+            padding: "7px 16px",
+            borderRadius: 6,
+            fontSize: 13,
+            fontWeight: 600,
+            textDecoration: "none",
+            background: "#16a34a",
+            color: "#fff",
+            transition: "background 0.15s",
+          }}
+            onMouseEnter={e => e.target.style.background = "#15803d"}
+            onMouseLeave={e => e.target.style.background = "#16a34a"}
+          >
+            Launch →
+          </Link>
         </nav>
 
-        {/* Hamburger (Mobile only) */}
+        {/* ── Hamburger (mobile) ── */}
         <button
-          className="md:hidden text-white focus:outline-none"
-          onClick={toggleMenu}
+          onClick={() => setMenuOpen(!menuOpen)}
+          style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: "#94a3b8", display: "none" }}
+          className="mobile-menu-btn"
+          aria-label="Toggle menu"
         >
           {menuOpen ? (
-            // X icon
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M18 6L6 18M6 6l12 12"/></svg>
           ) : (
-            // Hamburger icon
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 8h16M4 16h16" />
-            </svg>
+            <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M4 8h16M4 16h16"/></svg>
           )}
         </button>
       </div>
 
-      {/* Mobile Menu */}
-      <div
-        className={`md:hidden bg-gray-900 overflow-hidden transition-all duration-300 ${
-          menuOpen ? "max-h-96" : "max-h-0"
-        }`}
-      >
-        <nav className="flex flex-col px-4 pb-4">
+      {/* ── Mobile Menu ── */}
+      <div style={{
+        overflow: "hidden",
+        maxHeight: menuOpen ? 300 : 0,
+        transition: "max-height 0.3s ease",
+        background: "#0f172a",
+        borderTop: menuOpen ? "1px solid #1e293b" : "none",
+      }}>
+        <nav style={{ display: "flex", flexDirection: "column", padding: "8px 16px 16px" }}>
           {links.map((l) => (
-            <NavLink
-              key={l.to}
-              to={l.to}
-              onClick={() => setMenuOpen(false)} // close menu
-              className={({ isActive }) =>
-                `px-3 py-2 rounded-md text-sm font-medium mt-1 transition ${
-                  isActive
-                    ? "bg-white text-gray-800"
-                    : "text-white hover:bg-gray-600"
-                }`
-              }
-            >
+            <NavLink key={l.to} to={l.to} onClick={() => setMenuOpen(false)}
+              style={({ isActive }) => ({
+                padding: "10px 12px", borderRadius: 6, fontSize: 14, fontWeight: 500,
+                textDecoration: "none", marginTop: 4,
+                background: isActive ? "rgba(22,163,74,0.12)" : "transparent",
+                color: isActive ? "#4ade80" : "#94a3b8",
+              })}>
               {l.label}
             </NavLink>
           ))}
         </nav>
       </div>
+
+      {/* ── Responsive styles ── */}
+      <style>{`
+        @media (max-width: 768px) {
+          .desktop-nav { display: none !important; }
+          .mobile-menu-btn { display: flex !important; }
+        }
+      `}</style>
     </header>
   );
 }
