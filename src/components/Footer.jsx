@@ -1,95 +1,125 @@
 import React from "react";
-import {
-  FaYoutube,
-  FaXTwitter,
-  FaInstagram,
-  FaLinkedin,
-  FaGithub,
-} from "react-icons/fa6";
+import { Link } from "react-router-dom";
+import { FaYoutube, FaXTwitter, FaLinkedin } from "react-icons/fa6";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-800 text-gray-300 py-10 px-6 md:px-12 border-t border-gray-700">
-      <div className="max-w-full mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+    <footer style={{
+      background: "#0f172a",
+      borderTop: "1px solid #1e293b",
+      fontFamily: "sans-serif",
+    }}>
+      <div style={{
+        maxWidth: 1200, margin: "0 auto",
+        padding: "40px 24px 24px",
+      }}>
 
-        {/* Left Section */}
-        <div className="text-center md:text-left space-y-1">
-          <div className="text-sm">
-            © 2025-{new Date().getFullYear()}{" "}
-            <span className="font-semibold text-white">Hwasat Geosense</span>
+        {/* ── Main row ── */}
+        <div style={{
+          display: "flex", flexWrap: "wrap",
+          gap: 40, justifyContent: "space-between",
+          marginBottom: 32,
+        }}>
+
+          {/* Brand */}
+          <div style={{ minWidth: 200, maxWidth: 280 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+              <div style={{
+                width: 28, height: 28, borderRadius: 7,
+                background: "linear-gradient(135deg, #16a34a, #15803d)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 13, flexShrink: 0,
+              }}>🛰️</div>
+              <span style={{ fontWeight: 700, fontSize: 15, color: "#f1f5f9" }}>
+                Hwasat <span style={{ fontWeight: 400, color: "#64748b" }}>Geosense</span>
+              </span>
+            </div>
+            <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.7, margin: 0 }}>
+              Satellite-derived environmental data made accessible for researchers,
+              agencies, and decision-makers.
+            </p>
           </div>
-          <div className="text-xs text-gray-400">All rights reserved</div>
-			<div className="text-xs text-gray-400 mt-1">
-            Contact:{" "}
-            <a
-              href="mailto:admin@hwasat.com"
-              className="text-gray-300 hover:text-green-400 transition-colors"
-            >
+
+          {/* Navigation */}
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#16a34a", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 14 }}>
+              Platform
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {[
+                { to: "/", label: "Home" },
+                { to: "/maps", label: "Dashboard" },
+                { to: "/data", label: "Data Portal" },
+                { to: "/about", label: "About" },
+              ].map(l => (
+                <Link key={l.to} to={l.to} style={{ fontSize: 13, color: "#94a3b8", textDecoration: "none", transition: "color 0.15s" }}
+                  onMouseEnter={e => e.target.style.color = "#e2e8f0"}
+                  onMouseLeave={e => e.target.style.color = "#94a3b8"}>
+                  {l.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Data sources */}
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#16a34a", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 14 }}>
+              Data Sources
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {["Sentinel-2", "Landsat", "MODIS", "Dynamic World", "CHIRPS"].map(s => (
+                <span key={s} style={{ fontSize: 13, color: "#64748b" }}>{s}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Contact & Social */}
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#16a34a", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 14 }}>
+              Contact
+            </div>
+            <a href="mailto:admin@hwasat.com" style={{ fontSize: 13, color: "#94a3b8", textDecoration: "none", display: "block", marginBottom: 20, transition: "color 0.15s" }}
+              onMouseEnter={e => e.target.style.color = "#4ade80"}
+              onMouseLeave={e => e.target.style.color = "#94a3b8"}>
               admin@hwasat.com
             </a>
+
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#16a34a", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
+              Follow Us
+            </div>
+            <div style={{ display: "flex", gap: 12 }}>
+              {[
+                { href: "https://www.youtube.com/@hwasat", icon: <FaYoutube size={18} />, hover: "#ef4444" },
+                { href: "https://x.com/Hwa_Sat", icon: <FaXTwitter size={18} />, hover: "#38bdf8" },
+                { href: "http://www.linkedin.com/in/haftomhagos", icon: <FaLinkedin size={18} />, hover: "#60a5fa" },
+              ].map(({ href, icon, hover }, i) => (
+                <a key={i} href={href} target="_blank" rel="noreferrer"
+                  style={{ color: "#64748b", transition: "color 0.2s, transform 0.2s", display: "flex" }}
+                  onMouseEnter={e => { e.currentTarget.style.color = hover; e.currentTarget.style.transform = "scale(1.2)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = "#64748b"; e.currentTarget.style.transform = "scale(1)"; }}>
+                  {icon}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Center Section */}
-        <div className="text-center">
-          <h3 className="text-white font-semibold text-lg mb-1">
-            Remote Sensing & Environmental Services
-          </h3>
-          <p className="text-gray-400 text-sm">
-            Empowering data-driven environmental decisions
-          </p>
+        {/* ── Bottom bar ── */}
+        <div style={{
+          borderTop: "1px solid #1e293b",
+          paddingTop: 20,
+          display: "flex", flexWrap: "wrap",
+          justifyContent: "space-between", alignItems: "center",
+          gap: 12,
+        }}>
+          <span style={{ fontSize: 12, color: "#475569" }}>
+            © 2025–{new Date().getFullYear()} Hwasat Geosense · Mekelle, Ethiopia · All rights reserved
+          </span>
+          <span style={{ fontSize: 12, color: "#334155" }}>
+            Powered by Google Earth Engine · ESA Copernicus · NASA
+          </span>
         </div>
 
-        {/* Right Section */}
-        <div className="text-center md:text-right space-y-3">
-          <h4 className="font-semibold text-white text-base">Follow Us</h4>
-          <div className="flex gap-4 justify-center md:justify-end">
-            <a
-              href="https://www.youtube.com/@hwasat"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-red-500 transform transition duration-300 hover:scale-125"
-            >
-              <FaYoutube className="w-6 h-6" />
-            </a>
-
-            <a
-              href="https://x.com/Hwa_Sat"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-sky-400 transform transition duration-300 hover:scale-125"
-            >
-              <FaXTwitter className="w-6 h-6" />
-            </a>
-
-			{/*<a
-              href="https://instagram.com"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-pink-500 transform transition duration-300 hover:scale-125"
-            >
-              <FaInstagram className="w-6 h-6" />
-            </a>*/}
-
-            <a
-              href="http://www.linkedin.com/in/haftomhagos"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-blue-500 transform transition duration-300 hover:scale-125"
-            >
-              <FaLinkedin className="w-6 h-6" />
-            </a>
-
-            {/*<a
-              href="https://github.com"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-gray-100 transform transition duration-300 hover:scale-125"
-            >
-              <FaGithub className="w-6 h-6" />
-            </a>*/}
-          </div>
-        </div>
       </div>
     </footer>
   );
