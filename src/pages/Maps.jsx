@@ -39,6 +39,7 @@ export default function Maps() {
   const [darkMode, setDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [resultsOpen, setResultsOpen] = useState(false);
+  const [resultsData, setResultsData] = useState(null);
 
   // ── Data state ──
   const [geojsonData, setGeojsonData] = useState({ adm1: null, adm2: null, adm3: null });
@@ -141,10 +142,10 @@ export default function Maps() {
     layerControlRef.current = L.control.layers({ "Street Map": street, "Satellite": sat }, {}, { collapsed: false }).addTo(map);
   }, []);
 
-  // Invalidate map size when sidebar toggles
+  // Invalidate map size when sidebar or results panel toggles
   useEffect(() => {
     setTimeout(() => mapRef.current?.invalidateSize(), 320);
-  }, [sidebarOpen]);
+  }, [sidebarOpen, resultsOpen]);
 
   // ── Load boundaries ──
   useEffect(() => {
@@ -308,6 +309,21 @@ export default function Maps() {
       { collapsed: false }
     ).addTo(map);
     map.invalidateSize();
+
+    // ── Open results panel ──
+    const period = changeMode
+      ? `${fromYear}–${toYear} vs ${fromYear2}–${toYear2}`
+      : `${fromYear}–${toYear}`;
+    setResultsData({
+      label: data.legend?.label || index,
+      datasetLabel: DATASET_CONFIG[datasetKey]?.label || datasetKey,
+      period,
+      isChange: changeMode,
+      visParams: data.vis_params || {},
+      uniqueClasses: data.unique_classes || null,
+      isLandcover: datasetKey === "landcover",
+    });
+    setResultsOpen(true);
   };
 
   // ── View Selection ──
@@ -433,6 +449,8 @@ export default function Maps() {
     setFromYear2(""); setFromMonth2(""); setFromDay2("");
     setToYear2(""); setToMonth2(""); setToDay2("");
     if (fileInputRef.current) fileInputRef.current.value = "";
+    setResultsOpen(false);
+    setResultsData(null);
     map.setView([9.145, 40.4897], 6);
   };
 
@@ -651,8 +669,8 @@ export default function Maps() {
       <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{
         position: "absolute", left: sidebarOpen ? SIDEBAR_W : 0, top: "50%", transform: "translateY(-50%)",
         zIndex: 200, background: t.sidebar, border: `1px solid ${t.border}`,
-        borderLeft: sidebarOpen ? "none" : `1px solid ${t.border}`,
-        borderRadius: sidebarOpen ? "0 6px 6px 0" : "0 6px 6px 0",
+        borderLeft: "none",
+        borderRadius: "0 6px 6px 0",
         padding: "12px 5px", cursor: "pointer", color: t.muted,
         transition: "left 0.3s ease", boxShadow: "2px 0 8px rgba(0,0,0,0.1)",
       }}>
@@ -660,7 +678,7 @@ export default function Maps() {
       </button>
 
       {/* ── Map ── */}
-      <div style={{ flex: 1, position: "relative" }}>
+      <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
         <div id="map" style={{ height: "100%", width: "100%" }} />
 
         {/* Loading spinner */}
@@ -671,6 +689,90 @@ export default function Maps() {
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
         )}
+      </div>
+
+      {/* ── Sliding Results Panel ── */}
+      <div style={{
+        width: resultsOpen ? 300 : 0,
+        minWidth: resultsOpen ? 300 : 0,
+        background: t.sidebar,
+        borderLeft: `1px solid ${t.border}`,
+        transition: "width 0.35s ease, min-width 0.35s ease",
+        overflow: "hidden",
+        display: "flex", flexDirection: "column",
+        boxShadow: resultsOpen ? "-4px 0 20px rgba(0,0,0,0.12)" : "none",
+        zIndex: 100,
+      }}>
+        <div style={{ width: 300, height: "100%", overflowY: "auto", padding: "16px 16px 24px" }}>
+
+          {/* Panel header */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+            <span style={{ fontWeight: 700, fontSize: 14, color: t.text }}>Results</span>
+            <button onClick={() => setResultsOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: t.muted, padding: 4, borderRadius: 4 }}>
+              <Icon d={icons.close} size={16} />
+            </button>
+          </div>
+
+          {resultsData && (
+            <>
+              {/* ── Layer info card ── */}
+              <div style={{ background: t.card, border: `1px solid ${t.border}`, borderRadius: 10, padding: "14px 16px", marginBottom: 16 }}>
+                <div style={{ fontSize: 11, color: t.muted, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, fontFamily: "sans-serif" }}>Active Layer</div>
+                <div style={{ fontWeight: 700, fontSize: 16, color: t.accent, marginBottom: 4 }}>{resultsData.label}</div>
+                <div style={{ fontSize: 12, color: t.muted, fontFamily: "sans-serif" }}>{resultsData.datasetLabel}</div>
+                <div style={{ fontSize: 12, color: t.muted, fontFamily: "sans-serif", marginTop: 2 }}>📅 {resultsData.period}</div>
+                {resultsData.isChange && (
+                  <div style={{ marginTop: 8, padding: "6px 8px", background: darkMode ? "rgba(234,88,12,0.1)" : "#fff7ed", borderRadius: 6, fontSize: 11, color: "#9a3412", fontFamily: "sans-serif" }}>
+                    Change detection: Period 2 − Period 1
+                  </div>
+                )}
+              </div>
+
+              {/* ── Colour scale ── */}
+              {!resultsData.isLandcover && resultsData.visParams?.palette && (
+                <div style={{ background: t.card, border: `1px solid ${t.border}`, borderRadius: 10, padding: "14px 16px", marginBottom: 16 }}>
+                  <div style={{ fontSize: 11, color: t.muted, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10, fontFamily: "sans-serif" }}>Colour Scale</div>
+                  <div style={{ height: 12, borderRadius: 6, background: `linear-gradient(to right, ${resultsData.visParams.palette.map(c => c.startsWith("#") ? c : `#${c}`).join(",")})`, marginBottom: 6 }} />
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: t.muted, fontFamily: "sans-serif" }}>
+                    <span>{(resultsData.visParams.min ?? 0).toFixed(2)}</span>
+                    <span>{(resultsData.visParams.max ?? 1).toFixed(2)}</span>
+                  </div>
+                  {resultsData.isChange && (
+                    <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 4, fontSize: 11, fontFamily: "sans-serif", color: t.muted }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 2, background: "#d73027", flexShrink: 0, display: "inline-block" }} />Decrease</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 2, background: "#ffffff", border: "1px solid #ccc", flexShrink: 0, display: "inline-block" }} />No change</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 2, background: "#1a9850", flexShrink: 0, display: "inline-block" }} />Increase</div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── Land cover classes ── */}
+              {resultsData.isLandcover && resultsData.uniqueClasses?.length > 0 && (
+                <div style={{ background: t.card, border: `1px solid ${t.border}`, borderRadius: 10, padding: "14px 16px", marginBottom: 16 }}>
+                  <div style={{ fontSize: 11, color: t.muted, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10, fontFamily: "sans-serif" }}>Land Cover Classes</div>
+                  {resultsData.uniqueClasses.map((cls, i) => {
+                    const name = typeof cls === "string" ? cls : cls.class_name || `Class ${i}`;
+                    const color = LANDCOVER_PALETTE[name] || "#ccc";
+                    return (
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                        <span style={{ width: 14, height: 14, borderRadius: 3, background: color, flexShrink: 0, display: "inline-block", border: "1px solid rgba(0,0,0,0.1)" }} />
+                        <span style={{ fontSize: 12, color: t.text, fontFamily: "sans-serif" }}>{name.replace(/_/g, " ")}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* ── Placeholder for future charts ── */}
+              <div style={{ background: t.card, border: `1px dashed ${t.border}`, borderRadius: 10, padding: "20px 16px", textAlign: "center" }}>
+                <div style={{ fontSize: 22, marginBottom: 8 }}>📈</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: t.text, marginBottom: 4, fontFamily: "sans-serif" }}>Time Series</div>
+                <div style={{ fontSize: 11, color: t.muted, fontFamily: "sans-serif", lineHeight: 1.6 }}>Time series chart coming soon. Select an area and click "View Time Series" to analyse trends over time.</div>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
     </div>
