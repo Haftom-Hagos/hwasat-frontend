@@ -26,22 +26,7 @@ export default function Navbar() {
 
         {/* ── Logo ── */}
         <Link to="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{
-            width: 30, height: 30, borderRadius: 8,
-            background: "linear-gradient(135deg, #16a34a, #15803d)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 14, flexShrink: 0,
-          }}>
-            🛰️
-          </div>
-          <div>
-            <span style={{ fontWeight: 700, fontSize: 15, color: "#f1f5f9", letterSpacing: "-0.01em" }}>
-              Hwasat
-            </span>
-            <span style={{ fontWeight: 400, fontSize: 13, color: "#64748b", marginLeft: 6 }}>
-              Geosense
-            </span>
-          </div>
+          <img src="/logo.png" alt="Hwasat Geosense" style={{ height: 36, width: "auto" }} />
         </Link>
 
         {/* ── Desktop Nav ── */}
