@@ -53,6 +53,29 @@ export default function About() {
         </div>
       </div>
 
+      const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+      const [formStatus, setFormStatus] = useState(null); // null | "sending" | "sent" | "error"
+
+      const handleSubmit = async () => {
+        if (!formData.name || !formData.email || !formData.message) return;
+        setFormStatus("sending");
+        try {
+          const res = await fetch("https://formspree.io/f/YOUR_FORM_ID", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify(formData),
+          });
+          if (res.ok) {
+            setFormStatus("sent");
+            setFormData({ name: "", email: "", message: "" });
+          } else {
+            setFormStatus("error");
+          }
+        } catch {
+          setFormStatus("error");
+        }
+      };
+
       {/* ── Body ── */}
       <div style={{ maxWidth: 760, margin: "0 auto", padding: "64px 24px 100px" }}>
 
@@ -171,7 +194,7 @@ export default function About() {
       {/* Haftom */}
       <div style={{ border: "1px solid #e2e8f0", borderRadius: 14, padding: "28px 24px" }}>
         <img
-          src="/images/haftom.jpeg"
+          src="/images/Haftom.jpg"
           alt="Haftom H."
           style={{ width: 48, height: 48, borderRadius: 12, objectFit: "cover", marginBottom: 16 }}
         />
@@ -191,7 +214,7 @@ export default function About() {
       {/* Dr. Haftu */}
       <div style={{ border: "1px solid #e2e8f0", borderRadius: 14, padding: "28px 24px" }}>
         <img
-          src="/images/haftu.jpeg"
+          src="/images/Haftu.jpeg"
           alt="Dr. Haftu Abrha"
           style={{ width: 48, height: 48, borderRadius: 12, objectFit: "cover", marginBottom: 16 }}
         />
@@ -244,64 +267,103 @@ export default function About() {
         {/* ── CTA ── */}
         <FadeIn delay={80}>
           <div style={{
-              background: "linear-gradient(135deg, #0f172a, #1e3a2f)",
-              borderRadius: 16, padding: "44px",
-              display: "flex", alignItems: "flex-start",
-              justifyContent: "space-between", gap: 40, flexWrap: "wrap",
-            }}>
-          {/* Left */}
-              <div style={{ flex: 1, minWidth: 200 }}>
-                <div style={{
-                  fontSize: 11, color: "#4ade80", fontFamily: "sans-serif",
-                  fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10,
-                }}>
-                  📍 Kassel, Germany
-                </div>
-                <div style={{ fontSize: 20, fontWeight: 700, color: "#f1f5f9", marginBottom: 8 }}>
-                  Building for Africa and beyond
-              </div>
-                <div style={{ fontSize: 14, color: "#94a3b8", fontFamily: "sans-serif" }}>
-                  Get in touch to collaborate, partner, or learn more.
-              </div>
-            </div>
+  background: "linear-gradient(135deg, #0f172a, #1e3a2f)",
+  borderRadius: 16, padding: "44px",
+  display: "flex", alignItems: "flex-start",
+  justifyContent: "space-between", gap: 40, flexWrap: "wrap",
+}}>
+  {/* Left */}
+  <div style={{ flex: 1, minWidth: 200 }}>
+    <div style={{
+      fontSize: 11, color: "#4ade80", fontFamily: "sans-serif",
+      fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10,
+    }}>
+      📍 Mekelle, Ethiopia
+    </div>
+    <div style={{ fontSize: 20, fontWeight: 700, color: "#f1f5f9", marginBottom: 8 }}>
+      Building for Africa and beyond
+    </div>
+    <div style={{ fontSize: 14, color: "#94a3b8", fontFamily: "sans-serif" }}>
+      Get in touch to collaborate, partner, or learn more.
+    </div>
+  </div>
 
-        {/* Right — Contact form */}
-            <div style={{ flex: 1, minWidth: 260, display: "flex", flexDirection: "column", gap: 10 }}>
-              <input
-                type="text" placeholder="Your name"
-                style={{
-                  background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)",
-                    borderRadius: 8, padding: "10px 14px", fontSize: 13,
-                    color: "#f1f5f9", fontFamily: "sans-serif", outline: "none",
-                  }}
-                />
-                <input
-                  type="email" placeholder="Your email"
-                  style={{
-                    background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)",
-                    borderRadius: 8, padding: "10px 14px", fontSize: 13,
-                    color: "#f1f5f9", fontFamily: "sans-serif", outline: "none",
-                  }}
-                />
-                <textarea
-                  placeholder="Your message" rows={3}
-                  style={{
-                    background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)",
-                    borderRadius: 8, padding: "10px 14px", fontSize: 13,
-                    color: "#f1f5f9", fontFamily: "sans-serif", outline: "none",
-                    resize: "vertical",
-                  }}
-                />
-                <button style={{
-                  background: "#22c55e", color: "#fff", border: "none",
-                  borderRadius: 8, padding: "11px 20px",
-                  fontSize: 13, fontFamily: "sans-serif", fontWeight: 700,
-                  cursor: "pointer", textAlign: "center",
-                }}>
-                  Send Message →
-                </button>
-              </div>
-            </div>
+  {/* Right — Contact form */}
+  <div style={{ flex: 1, minWidth: 260 }}>
+    {formStatus === "sent" ? (
+      <div style={{
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        padding: "32px 16px", textAlign: "center", gap: 12,
+      }}>
+        <div style={{ fontSize: 36 }}>✅</div>
+        <div style={{ fontSize: 16, fontWeight: 700, color: "#4ade80", fontFamily: "sans-serif" }}>
+          Thank you for reaching out!
+        </div>
+        <div style={{ fontSize: 13, color: "#94a3b8", fontFamily: "sans-serif", lineHeight: 1.6 }}>
+          We will get back to you at <span style={{ color: "#f1f5f9" }}>{formData.email || "your email"}</span> as soon as possible.
+        </div>
+        <button
+          onClick={() => setFormStatus(null)}
+          style={{
+            marginTop: 8, background: "none", border: "1px solid rgba(255,255,255,0.15)",
+            borderRadius: 8, padding: "8px 18px", fontSize: 12,
+            color: "#94a3b8", fontFamily: "sans-serif", cursor: "pointer",
+          }}>
+          Send another message
+        </button>
+      </div>
+    ) : (
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <input
+          type="text" placeholder="Your name" value={formData.name}
+          onChange={e => setFormData({ ...formData, name: e.target.value })}
+          style={{
+            background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 8, padding: "10px 14px", fontSize: 13,
+            color: "#f1f5f9", fontFamily: "sans-serif", outline: "none",
+          }}
+        />
+        <input
+          type="email" placeholder="Your email" value={formData.email}
+          onChange={e => setFormData({ ...formData, email: e.target.value })}
+          style={{
+            background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 8, padding: "10px 14px", fontSize: 13,
+            color: "#f1f5f9", fontFamily: "sans-serif", outline: "none",
+          }}
+        />
+        <textarea
+          placeholder="Your message" rows={3} value={formData.message}
+          onChange={e => setFormData({ ...formData, message: e.target.value })}
+          style={{
+            background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 8, padding: "10px 14px", fontSize: 13,
+            color: "#f1f5f9", fontFamily: "sans-serif", outline: "none", resize: "vertical",
+          }}
+        />
+        {formStatus === "error" && (
+          <div style={{ fontSize: 12, color: "#f87171", fontFamily: "sans-serif" }}>
+            Something went wrong. Please try again or email admin@hwasat.com directly.
+          </div>
+        )}
+        <button
+          onClick={handleSubmit}
+          disabled={formStatus === "sending" || !formData.name || !formData.email || !formData.message}
+          style={{
+            background: formStatus === "sending" ? "#15803d" : "#22c55e",
+            color: "#fff", border: "none", borderRadius: 8,
+            padding: "11px 20px", fontSize: 13, fontFamily: "sans-serif",
+            fontWeight: 700, cursor: formStatus === "sending" ? "not-allowed" : "pointer",
+            opacity: (!formData.name || !formData.email || !formData.message) ? 0.5 : 1,
+            transition: "opacity 0.2s",
+          }}>
+          {formStatus === "sending" ? "Sending..." : "Send Message →"}
+        </button>
+      </div>
+    )}
+  </div>
+</div>
         </FadeIn>
 
       </div>
