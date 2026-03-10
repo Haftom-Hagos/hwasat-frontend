@@ -62,13 +62,13 @@ export default function About() {
             <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0f172a", margin: 0 }}>The problem we lived</h2>
             <Divider />
             <p style={{ fontSize: 17, lineHeight: 1.9, color: "#334155", margin: "0 0 20px", fontFamily: "sans-serif" }}>
-              Like many researchers working with satellite data in Ethiopia, our founder Haftom
+              Like many researchers working with satellite data, our founder Haftom
               spent countless hours writing Google Earth Engine scripts just to answer basic
               questions — What is the NDVI trend in this watershed? How has land cover changed
               over the past decade? Is this region experiencing drought stress?
             </p>
             <p style={{ fontSize: 17, lineHeight: 1.9, color: "#334155", margin: "0 0 20px", fontFamily: "sans-serif" }}>
-              The data existed. The satellite archives were there — free, global, and updated
+              The data existed. The satellite archives were there free, global, and updated
               regularly. But accessing them required programming knowledge, expensive GIS
               software, or both. For researchers, agricultural planners, and government agencies
               across Ethiopia and the wider Horn of Africa, that barrier was simply too high.
@@ -169,15 +169,15 @@ export default function About() {
             <Divider />
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
 
-              <div style={{ border: "1px solid #e2e8f0", borderRadius: 14, padding: "28px 24px" }}>
-                <div style={{
+              <img
+                src="/images/haftom.jpeg"
+                alt="Haftom G."
+                style={{
                   width: 48, height: 48, borderRadius: 12,
-                  background: "linear-gradient(135deg, #16a34a, #0f172a)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 17, fontWeight: 700, color: "#fff",
-                  marginBottom: 16, fontFamily: "sans-serif",
-                }}>HH</div>
-                <div style={{ fontWeight: 700, fontSize: 16, color: "#0f172a", marginBottom: 4 }}>Haftom G.</div>
+                  objectFit: "cover", marginBottom: 16,
+                }}
+              />
+                <div style={{ fontWeight: 700, fontSize: 16, color: "#0f172a", marginBottom: 4 }}>Haftom H.</div>
                 <div style={{
                   fontSize: 11, fontWeight: 700, color: "#22c55e",
                   textTransform: "uppercase", letterSpacing: "0.09em",
@@ -190,14 +190,14 @@ export default function About() {
                 </p>
               </div>
 
-              <div style={{ border: "1px solid #e2e8f0", borderRadius: 14, padding: "28px 24px" }}>
-                <div style={{
+              <img
+                src="/images/haftom.jpeg"
+                alt="Haftom G."
+                style={{
                   width: 48, height: 48, borderRadius: 12,
-                  background: "linear-gradient(135deg, #0891b2, #0f172a)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 17, fontWeight: 700, color: "#fff",
-                  marginBottom: 16, fontFamily: "sans-serif",
-                }}>HA</div>
+                  objectFit: "cover", marginBottom: 16,
+                }}
+              />
                 <div style={{ fontWeight: 700, fontSize: 16, color: "#0f172a", marginBottom: 4 }}>Dr. Haftu Abrha (Associate Professor)</div>
                 <div style={{
                   fontSize: 11, fontWeight: 700, color: "#0891b2",
@@ -208,7 +208,6 @@ export default function About() {
                   Lecturer at Mekelle University contributing academic expertise in climate and environmental science to the platform's research direction.
                 </p>
               </div>
-
             </div>
           </section>
         </FadeIn>
@@ -246,42 +245,64 @@ export default function About() {
         {/* ── CTA ── */}
         <FadeIn delay={80}>
           <div style={{
-            background: "linear-gradient(135deg, #0f172a, #1e3a2f)",
-            borderRadius: 16, padding: "44px",
-            display: "flex", alignItems: "center",
-            justifyContent: "space-between", gap: 28, flexWrap: "wrap",
-          }}>
-            <div>
-              <div style={{
-                fontSize: 11, color: "#4ade80", fontFamily: "sans-serif",
-                fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10,
-              }}>
-                📍 Kassel, Germany
+              background: "linear-gradient(135deg, #0f172a, #1e3a2f)",
+              borderRadius: 16, padding: "44px",
+              display: "flex", alignItems: "flex-start",
+              justifyContent: "space-between", gap: 40, flexWrap: "wrap",
+            }}>
+          {/* Left */}
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <div style={{
+                  fontSize: 11, color: "#4ade80", fontFamily: "sans-serif",
+                  fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10,
+                }}>
+                  📍 Kassel, Germany
+                </div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: "#f1f5f9", marginBottom: 8 }}>
+                  Building for Africa and beyond
               </div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: "#f1f5f9", marginBottom: 8 }}>
-                Building for Africa and beyond
-              </div>
-              <div style={{ fontSize: 14, color: "#94a3b8", fontFamily: "sans-serif" }}>
-                Get in touch to collaborate, partner, or learn more.
+                <div style={{ fontSize: 14, color: "#94a3b8", fontFamily: "sans-serif" }}>
+                  Get in touch to collaborate, partner, or learn more.
               </div>
             </div>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <a href="mailto:admin@hwasat.com" style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                background: "rgba(255,255,255,0.08)", color: "#f1f5f9",
-                border: "1px solid rgba(255,255,255,0.15)",
-                borderRadius: 8, padding: "10px 20px",
-                fontSize: 13, fontFamily: "sans-serif", fontWeight: 600,
-                textDecoration: "none",
-              }}>✉️ Contact Us</a>
-              <a href="/maps" style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                background: "#22c55e", color: "#fff", borderRadius: 8,
-                padding: "10px 20px", fontSize: 13, fontFamily: "sans-serif",
-                fontWeight: 600, textDecoration: "none",
-              }}>🛰️ Try the Platform →</a>
+
+        {/* Right — Contact form */}
+            <div style={{ flex: 1, minWidth: 260, display: "flex", flexDirection: "column", gap: 10 }}>
+              <input
+                type="text" placeholder="Your name"
+                style={{
+                  background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)",
+                    borderRadius: 8, padding: "10px 14px", fontSize: 13,
+                    color: "#f1f5f9", fontFamily: "sans-serif", outline: "none",
+                  }}
+                />
+                <input
+                  type="email" placeholder="Your email"
+                  style={{
+                    background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)",
+                    borderRadius: 8, padding: "10px 14px", fontSize: 13,
+                    color: "#f1f5f9", fontFamily: "sans-serif", outline: "none",
+                  }}
+                />
+                <textarea
+                  placeholder="Your message" rows={3}
+                  style={{
+                    background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)",
+                    borderRadius: 8, padding: "10px 14px", fontSize: 13,
+                    color: "#f1f5f9", fontFamily: "sans-serif", outline: "none",
+                    resize: "vertical",
+                  }}
+                />
+                <button style={{
+                  background: "#22c55e", color: "#fff", border: "none",
+                  borderRadius: 8, padding: "11px 20px",
+                  fontSize: 13, fontFamily: "sans-serif", fontWeight: 700,
+                  cursor: "pointer", textAlign: "center",
+                }}>
+                  Send Message →
+                </button>
+              </div>
             </div>
-          </div>
         </FadeIn>
 
       </div>
