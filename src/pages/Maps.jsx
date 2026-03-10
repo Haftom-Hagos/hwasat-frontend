@@ -1069,7 +1069,7 @@ export default function Maps() {
                     {[
                       { label: "Resolution", value: resultsData.metadata?.resolution || { sentinel2:"10m", landsat:"30m", modis:"250m", landcover:"10m", climate:"5.5km" }[resultsData.datasetLabel?.toLowerCase()] || "N/A" },
                       { label: "Images Used", value: resultsData.metadata?.images_used != null ? resultsData.metadata.images_used : "N/A" },
-                      { label: "Avg Cloud Cover", value: resultsData.metadata?.cloud_cover_pct != null ? `${resultsData.metadata.cloud_cover_pct}%` : (["Sentinel-2","Landsat"].includes(resultsData.datasetLabel) ? "N/A" : "—") },
+                      { label: "Data Coverage", value: resultsData.metadata?.coverage_pct != null ? `${resultsData.metadata.coverage_pct}%` : "N/A" },  
                       { label: "Date Range", value: resultsData.metadata ? `${resultsData.metadata.start} → ${resultsData.metadata.end}` : `${resultsData.period}` },
                     ].map(item => (
                       <div key={item.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, fontFamily: "sans-serif" }}>
