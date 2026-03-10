@@ -100,7 +100,7 @@ export default function About() {
             </p>
             <p style={{ fontSize: 17, lineHeight: 1.9, color: "#334155", margin: "0 0 20px", fontFamily: "sans-serif" }}>
               The data existed. The satellite archives were there — free, global, and updated
-              regularly. But accessing them required programming knowledge, and/or expensive GIS
+              regularly. But accessing them required programming knowledge, or expensive GIS
               software. For researchers, agricultural planners, and government agencies
               across Ethiopia and the wider Africa, that barrier was simply too high.
             </p>
@@ -141,7 +141,7 @@ export default function About() {
             <p style={{ fontSize: 17, lineHeight: 1.9, color: "#334155", margin: "0 0 20px", fontFamily: "sans-serif" }}>
               Hwasat Geosense is a browser-based Earth Observation platform powered by
               Google Earth Engine. It integrates satellite data from Sentinel-2, Landsat,
-              MODIS, CHIRPS, ERA5, and Dynamic World — giving users access to over 25
+              MODIS, CHIRPS, and Dynamic World — giving users access to over 25
               spectral indices and environmental layers including NDVI, EVI, NDWI, VHI,
               SPI, and Dynamic World land cover classification.
             </p>
@@ -215,7 +215,7 @@ export default function About() {
                   fontFamily: "sans-serif", marginBottom: 12,
                 }}>Founder & Lead Developer</div>
                 <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.7, margin: 0, fontFamily: "sans-serif" }}>
-                  Geospatial analyst who designed and built Hwasat Geosense — combining Earth Observation expertise with modern web technologies 
+                  Geospatial analyst who designed and built Hwasat Geosense, combining Earth Observation expertise with modern web technologies 
                   to make satellite analysis accessible to all.
                 </p>
               </div>
@@ -266,7 +266,7 @@ export default function About() {
                 <p style={{ fontSize: 14, color: "#64748b", fontFamily: "sans-serif", lineHeight: 1.7, margin: 0 }}>
                   Ongoing academic collaboration supporting research integration and domain
                   expertise in remote sensing and environmental monitoring across the
-                  Tigray region and the wider Horn of Africa.
+                  Tigray region and beyond.
                 </p>
               </div>
             </div>
