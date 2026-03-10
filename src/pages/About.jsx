@@ -278,7 +278,7 @@ export default function About() {
                 fontSize: 11, color: "#4ade80", fontFamily: "sans-serif",
                 fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10,
               }}>
-                📍 Mekelle, Ethiopia
+                📍 Kassel, Germany
               </div>
               <div style={{ fontSize: 20, fontWeight: 700, color: "#f1f5f9", marginBottom: 8 }}>
                 Building for Africa and beyond
