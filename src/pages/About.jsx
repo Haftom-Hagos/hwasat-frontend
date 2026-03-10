@@ -26,10 +26,17 @@ const Divider = () => (
   <div style={{ width: 48, height: 3, background: "#22c55e", borderRadius: 2, margin: "16px 0 28px" }} />
 );
 
+const inputStyle = {
+  background: "rgba(255,255,255,0.07)",
+  border: "1px solid rgba(255,255,255,0.12)",
+  borderRadius: 8, padding: "10px 14px", fontSize: 13,
+  color: "#f1f5f9", fontFamily: "sans-serif", outline: "none", width: "100%",
+  boxSizing: "border-box",
+};
+
 export default function About() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
-  // ── Hooks and form handler must be above return ──
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [formStatus, setFormStatus] = useState(null); // null | "sending" | "sent" | "error"
 
@@ -70,7 +77,8 @@ export default function About() {
               fontSize: "clamp(30px, 5vw, 46px)", fontWeight: 700,
               color: "#0f172a", lineHeight: 1.2, margin: "12px 0 0",
             }}>
-              Why we built <span style={{ color: "#22c55e" }}>Hwasat Geosense</span>
+              Why we built{" "}
+              <span style={{ color: "#22c55e" }}>Hwasat Geosense</span>
             </h1>
           </FadeIn>
         </div>
@@ -91,10 +99,10 @@ export default function About() {
               over the past decade? Is this region experiencing drought stress?
             </p>
             <p style={{ fontSize: 17, lineHeight: 1.9, color: "#334155", margin: "0 0 20px", fontFamily: "sans-serif" }}>
-              The data existed. The satellite archives were there free, global, and updated
-              regularly. But accessing them required programming knowledge, expensive GIS
-              software, or both. For researchers, agricultural planners, and government agencies
-              across Ethiopia and the wider Horn of Africa, that barrier was simply too high.
+              The data existed. The satellite archives were there — free, global, and updated
+              regularly. But accessing them required programming knowledge, and/or expensive GIS
+              software. For researchers, agricultural planners, and government agencies
+              across Ethiopia and the wider Africa, that barrier was simply too high.
             </p>
             <p style={{ fontSize: 17, lineHeight: 1.9, color: "#334155", margin: 0, fontFamily: "sans-serif" }}>
               Hwasat Geosense was founded in 2024 with a straightforward goal: remove that
@@ -120,6 +128,7 @@ export default function About() {
               display: "block", marginTop: 14, fontSize: 13,
               color: "#16a34a", fontStyle: "normal", fontFamily: "sans-serif", fontWeight: 600,
             }}>
+              {/*— Haftom, Founder, Hwasat Geosense*/}
             </cite>
           </blockquote>
         </FadeIn>
@@ -197,7 +206,7 @@ export default function About() {
                 <img
                   src="/images/Haftom.jpg"
                   alt="Haftom H."
-                  style={{ width: 48, height: 48, borderRadius: 12, objectFit: "cover", marginBottom: 16 }}
+                  style={{ width: 48, height: 48, borderRadius: 12, objectFit: "cover", marginBottom: 16, display: "block" }}
                 />
                 <div style={{ fontWeight: 700, fontSize: 16, color: "#0f172a", marginBottom: 4 }}>Haftom H.</div>
                 <div style={{
@@ -206,9 +215,7 @@ export default function About() {
                   fontFamily: "sans-serif", marginBottom: 12,
                 }}>Founder & Lead Developer</div>
                 <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.7, margin: 0, fontFamily: "sans-serif" }}>
-                  Remote sensing specialist and full-stack developer. Built Hwasat to solve
-                  the access barriers he personally experienced working with satellite data
-                  in Ethiopia.
+                  Remote sensing specialist and full-stack developer.
                 </p>
               </div>
 
@@ -217,7 +224,7 @@ export default function About() {
                 <img
                   src="/images/Haftu.jpeg"
                   alt="Dr. Haftu Abrha"
-                  style={{ width: 48, height: 48, borderRadius: 12, objectFit: "cover", marginBottom: 16 }}
+                  style={{ width: 48, height: 48, borderRadius: 12, objectFit: "cover", marginBottom: 16, display: "block" }}
                 />
                 <div style={{ fontWeight: 700, fontSize: 16, color: "#0f172a", marginBottom: 4 }}>Dr. Haftu Abrha</div>
                 <div style={{
@@ -265,7 +272,7 @@ export default function About() {
           </section>
         </FadeIn>
 
-        {/* ── CTA ── */}
+        {/* ── CTA with contact form ── */}
         <FadeIn delay={80}>
           <div style={{
             background: "linear-gradient(135deg, #0f172a, #1e3a2f)",
@@ -273,6 +280,7 @@ export default function About() {
             display: "flex", alignItems: "flex-start",
             justifyContent: "space-between", gap: 40, flexWrap: "wrap",
           }}>
+
             {/* Left */}
             <div style={{ flex: 1, minWidth: 200 }}>
               <div style={{
@@ -282,14 +290,14 @@ export default function About() {
                 📍 Kassel, Germany
               </div>
               <div style={{ fontSize: 20, fontWeight: 700, color: "#f1f5f9", marginBottom: 8 }}>
-                Building for Africa and beyond
+                Building for Ethiopia and beyond
               </div>
               <div style={{ fontSize: 14, color: "#94a3b8", fontFamily: "sans-serif" }}>
                 Get in touch to collaborate, partner, or learn more.
               </div>
             </div>
 
-            {/* Right — Contact form */}
+            {/* Right — contact form */}
             <div style={{ flex: 1, minWidth: 260 }}>
               {formStatus === "sent" ? (
                 <div style={{
@@ -302,12 +310,13 @@ export default function About() {
                     Thank you for reaching out!
                   </div>
                   <div style={{ fontSize: 13, color: "#94a3b8", fontFamily: "sans-serif", lineHeight: 1.6 }}>
-                    We will get back to you at <span style={{ color: "#f1f5f9" }}>{formData.email || "your email"}</span> as soon as possible.
+                    We will get back to you as soon as possible.
                   </div>
                   <button
                     onClick={() => setFormStatus(null)}
                     style={{
-                      marginTop: 8, background: "none", border: "1px solid rgba(255,255,255,0.15)",
+                      marginTop: 8, background: "none",
+                      border: "1px solid rgba(255,255,255,0.15)",
                       borderRadius: 8, padding: "8px 18px", fontSize: 12,
                       color: "#94a3b8", fontFamily: "sans-serif", cursor: "pointer",
                     }}>
@@ -317,9 +326,54 @@ export default function About() {
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   <input
-                    type="text" placeholder="Your name" value={formData.name}
+                    type="text"
+                    placeholder="Your name"
+                    value={formData.name}
                     onChange={e => setFormData({ ...formData, name: e.target.value })}
+                    style={inputStyle}
+                  />
+                  <input
+                    type="email"
+                    placeholder="Your email"
+                    value={formData.email}
+                    onChange={e => setFormData({ ...formData, email: e.target.value })}
+                    style={inputStyle}
+                  />
+                  <textarea
+                    placeholder="Your message"
+                    rows={4}
+                    value={formData.message}
+                    onChange={e => setFormData({ ...formData, message: e.target.value })}
+                    style={{ ...inputStyle, resize: "vertical" }}
+                  />
+                  {formStatus === "error" && (
+                    <div style={{ fontSize: 12, color: "#f87171", fontFamily: "sans-serif" }}>
+                      Something went wrong. Please email admin@hwasat.com directly.
+                    </div>
+                  )}
+                  <button
+                    onClick={handleSubmit}
+                    disabled={formStatus === "sending" || !formData.name || !formData.email || !formData.message}
                     style={{
-                      background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)",
-                      borderRadius: 8, padding: "10px 14px", fontSize: 13,
-                      color: "#f1f5f9", fontFamily: "sans
+                      background: formStatus === "sending" ? "#15803d" : "#22c55e",
+                      color: "#fff", border: "none", borderRadius: 8,
+                      padding: "11px 20px", fontSize: 13, fontFamily: "sans-serif",
+                      fontWeight: 700,
+                      cursor: (formStatus === "sending" || !formData.name || !formData.email || !formData.message)
+                        ? "not-allowed" : "pointer",
+                      opacity: (!formData.name || !formData.email || !formData.message) ? 0.5 : 1,
+                      transition: "opacity 0.2s",
+                    }}>
+                    {formStatus === "sending" ? "Sending..." : "Send Message →"}
+                  </button>
+                </div>
+              )}
+            </div>
+
+          </div>
+        </FadeIn>
+
+      </div>
+    </div>
+  );
+}
