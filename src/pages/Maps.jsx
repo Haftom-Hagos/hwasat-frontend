@@ -35,6 +35,9 @@ export default function Maps() {
   const overlayRef = useRef(null);
   const legendRef = useRef(null);
   const layerControlRef = useRef(null);
+  const p1LayerRef = useRef(null);
+  const p2LayerRef = useRef(null);
+  const changeLayerRef = useRef(null);
 
   // ── UI state ──
   const [darkMode, setDarkMode] = useState(false);
@@ -559,7 +562,7 @@ export default function Maps() {
   };
 
 
-  // ── Land Cover Change Map ──
+  // ── Land Cover Change Map — 3 layers: P1, P2, Change ──
   const handleLandcoverChangeMap = async () => {
     const geometry = useCustomGeoJSON ? customGeoJSON?.geometry : selectedFeatureGeoJSON?.geometry;
     if (!geometry) return setMessage(useCustomGeoJSON ? "Upload a GeoJSON first" : "Select a feature first");
@@ -567,26 +570,139 @@ export default function Maps() {
     setChangeMapLoading(true);
     setChangeMapData(null);
     setMessage(null);
+    const map = mapRef.current;
+    // Remove old change map layers
+    [p1LayerRef, p2LayerRef, changeLayerRef].forEach(ref => {
+      if (ref.current) { try { map.removeLayer(ref.current); } catch {} ref.current = null; }
+    });
     try {
-      const res = await fetch(`${BACKEND_URL}/landcover_change_map`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          startDate1: `${fromYear}-${fromMonth || "01"}-${fromDay || "01"}`,
-          endDate1:   `${toYear}-${toMonth || "12"}-${toDay || "31"}`,
-          startDate2: `${fromYear2}-${fromMonth2 || "01"}-${fromDay2 || "01"}`,
-          endDate2:   `${toYear2}-${toMonth2 || "12"}-${toDay2 || "31"}`,
-          geometry,
-        }),
+      const body1 = {
+        dataset: "landcover", index: "dynamic",
+        startDate: `${fromYear}-${fromMonth || "01"}-${fromDay || "01"}`,
+        endDate:   `${toYear}-${toMonth || "12"}-${toDay || "31"}`,
+        geometry,
+      };
+      const body2 = { ...body1,
+        startDate: `${fromYear2}-${fromMonth2 || "01"}-${fromDay2 || "01"}`,
+        endDate:   `${toYear2}-${toMonth2 || "12"}-${toDay2 || "31"}`,
+      };
+      const bodyChange = {
+        startDate1: body1.startDate, endDate1: body1.endDate,
+        startDate2: body2.startDate, endDate2: body2.endDate,
+        geometry,
+      };
+
+      // Fetch all three in parallel
+      const [r1, r2, rChange] = await Promise.all([
+        fetch(`${BACKEND_URL}/gee_layers`, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body1) }),
+        fetch(`${BACKEND_URL}/gee_layers`, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body2) }),
+        fetch(`${BACKEND_URL}/landcover_change_map`, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(bodyChange) }),
+      ]);
+      const [d1, d2, dChange] = await Promise.all([r1.json(), r2.json(), rChange.json()]);
+      if (!r1.ok) throw new Error(d1.detail || "P1 failed");
+      if (!r2.ok) throw new Error(d2.detail || "P2 failed");
+      if (!rChange.ok) throw new Error(dChange.detail || "Change map failed");
+
+      const url1 = d1.mode_tiles || d1.tiles;
+      const url2 = d2.mode_tiles || d2.tiles;
+      const urlC = dChange.tiles;
+
+      // Remove existing overlays
+      if (overlayRef.current) { try { map.removeLayer(overlayRef.current); } catch {} }
+      if (legendRef.current)  { try { map.removeControl(legendRef.current); } catch {} }
+      if (layerControlRef.current) { try { map.removeControl(layerControlRef.current); } catch {} }
+
+      const p1Label = `🟦 Land Cover P1 (${fromYear}–${toYear})`;
+      const p2Label = `🟩 Land Cover P2 (${fromYear2}–${toYear2})`;
+      const chLabel = `🔴 Stable vs Changed`;
+
+      p1LayerRef.current    = L.tileLayer(url1, { opacity: 0.85, zIndex: 5 });
+      p2LayerRef.current    = L.tileLayer(url2, { opacity: 0.85, zIndex: 6 });
+      changeLayerRef.current = L.tileLayer(urlC, { opacity: 0.85, zIndex: 7 });
+
+      // Add all three by default
+      [p1LayerRef.current, p2LayerRef.current, changeLayerRef.current].forEach(l => l.addTo(map));
+      overlayRef.current = changeLayerRef.current; // track last for bounds
+
+      // Fit bounds
+      if (dChange.bounds?.length) {
+        try { map.fitBounds(dChange.bounds.map(([lng, lat]) => [lat, lng])); } catch {}
+      }
+
+      // Layer control with checkboxes
+      layerControlRef.current = L.control.layers(
+        { "Street Map": map._baseStreet, "Satellite": map._baseSat },
+        {
+          [p1Label]: p1LayerRef.current,
+          [p2Label]: p2LayerRef.current,
+          [chLabel]: changeLayerRef.current,
+        },
+        { collapsed: false }
+      ).addTo(map);
+
+      // Simple change map legend
+      const Legend = L.Control.extend({
+        onAdd() {
+          const div = L.DomUtil.create("div");
+          div.style.cssText = "background:white;padding:8px 10px;font-size:11px;box-shadow:0 2px 8px rgba(0,0,0,0.2);border-radius:6px;font-family:sans-serif;min-width:140px";
+          div.innerHTML = `<b style="font-size:11px;text-transform:uppercase;letter-spacing:0.05em">Change Map</b><br>
+            <div style="display:flex;align-items:center;margin:4px 0"><i style="background:#9ca3af;width:14px;height:14px;border-radius:2px;margin-right:6px;flex-shrink:0"></i>Stable</div>
+            <div style="display:flex;align-items:center;margin:4px 0"><i style="background:#dc2626;width:14px;height:14px;border-radius:2px;margin-right:6px;flex-shrink:0"></i>Changed</div>`;
+          return div;
+        }
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
-      addOverlayAndLegend(data, "landcover");
-      setChangeMapData(data);
+      legendRef.current = new Legend({ position: "bottomleft" });
+      legendRef.current.addTo(map);
+      map.invalidateSize();
+
+      setChangeMapData(dChange);
       setActiveTab("changemap");
       setResultsOpen(true);
-      setMessage("Land cover change map loaded.");
+      setMessage("Land cover change map loaded — 3 layers added to map.");
+
+      // Update results panel
+      setResultsData({
+        label: "Land Cover Change",
+        datasetLabel: "Dynamic World",
+        period: `${fromYear}–${toYear} vs ${fromYear2}–${toYear2}`,
+        isChange: true, isLandcover: true,
+        visParams: dChange.vis_params || {},
+        uniqueClasses: null, metadata: null,
+      });
     } catch (e) { setMessage(`Change map failed: ${e.message}`); }
     finally { setChangeMapLoading(false); }
+  };
+
+
+  // ── Export CSV: Time Series ──
+  const exportTimeSeriesCSV = () => {
+    if (!tsData) return;
+    const rows = [["Date", tsData.index], ...tsData.data.map(d => [d.date, d.value ?? ""])];
+    const csv = rows.map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${tsData.dataset}_${tsData.index}_timeseries.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // ── Export CSV: Land Cover Stats ──
+  const exportStatsCSV = () => {
+    if (!statsData) return;
+    const headers = ["Class","Period1_%","Period2_%","Change_%","Period1_km2","Period2_km2","Change_km2"];
+    const rows = statsData.rows.map(r => [
+      r.class, r.pct1, r.pct2, r.change_pct, r.area1_km2, r.area2_km2, r.change_km2
+    ]);
+    const csv = [headers, ...rows].map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `landcover_stats_${statsData.period1}_vs_${statsData.period2}.csv`.replace(/\s/g,"_");
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const SIDEBAR_W = 300;
@@ -948,14 +1064,13 @@ export default function Maps() {
                 )}
 
                 {/* ── Metadata card ── */}
-                {resultsData.metadata && (
-                  <div style={{ background: t.card, border: `1px solid ${t.border}`, borderRadius: 10, padding: "14px 16px" }}>
+<div style={{ background: t.card, border: `1px solid ${t.border}`, borderRadius: 10, padding: "14px 16px" }}>
                     <div style={{ fontSize: 11, color: t.muted, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10, fontFamily: "sans-serif" }}>Dataset Info</div>
                     {[
-                      { label: "Resolution", value: resultsData.metadata.resolution },
-                      { label: "Images Used", value: resultsData.metadata.images_used != null ? resultsData.metadata.images_used : "N/A" },
-                      { label: "Avg Cloud Cover", value: resultsData.metadata.cloud_cover_pct != null ? `${resultsData.metadata.cloud_cover_pct}%` : "N/A" },
-                      { label: "Date Range", value: `${resultsData.metadata.start} → ${resultsData.metadata.end}` },
+                      { label: "Resolution", value: resultsData.metadata?.resolution || { sentinel2:"10m", landsat:"30m", modis:"250m", landcover:"10m", climate:"5.5km" }[resultsData.datasetLabel?.toLowerCase()] || "N/A" },
+                      { label: "Images Used", value: resultsData.metadata?.images_used != null ? resultsData.metadata.images_used : "N/A" },
+                      { label: "Avg Cloud Cover", value: resultsData.metadata?.cloud_cover_pct != null ? `${resultsData.metadata.cloud_cover_pct}%` : (["Sentinel-2","Landsat"].includes(resultsData.datasetLabel) ? "N/A" : "—") },
+                      { label: "Date Range", value: resultsData.metadata ? `${resultsData.metadata.start} → ${resultsData.metadata.end}` : `${resultsData.period}` },
                     ].map(item => (
                       <div key={item.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, fontFamily: "sans-serif" }}>
                         <span style={{ fontSize: 11, color: t.muted }}>{item.label}</span>
@@ -963,7 +1078,6 @@ export default function Maps() {
                       </div>
                     ))}
                   </div>
-                )}
               </>
             )}
 
@@ -1177,6 +1291,17 @@ export default function Maps() {
                         </tbody>
                       </table>
                     </div>
+
+                    {/* Export CSV */}
+                    <button onClick={exportStatsCSV} style={{
+                      marginTop: 12, width: "100%", background: t.card,
+                      border: `1px solid ${t.border}`, borderRadius: 7,
+                      padding: "8px 12px", fontSize: 12, fontWeight: 600,
+                      color: t.muted, cursor: "pointer", fontFamily: "sans-serif",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                    }}>
+                      <Icon d={icons.download} size={13} /> Export CSV
+                    </button>
                   </>
                 )}
               </div>
