@@ -1077,6 +1077,25 @@ export default function Maps() {
                         <span style={{ fontSize: 12, fontWeight: 600, color: t.text }}>{item.value}</span>
                       </div>
                     ))}
+
+                    {/* SPI-specific explanation */}
+                    {resultsData.label === "SPI" && (
+                      <div style={{
+                        marginTop: 12, padding: "10px 12px",
+                        background: darkMode ? "rgba(59,130,246,0.08)" : "#eff6ff",
+                        border: "1px solid #bfdbfe", borderRadius: 8,
+                        fontSize: 11, fontFamily: "sans-serif", lineHeight: 1.6, color: "#1e40af",
+                      }}>
+                        <div style={{ fontWeight: 700, marginBottom: 4 }}>ℹ️ About SPI</div>
+                        <div><b>Method:</b> Z-score standardisation (approximation)</div>
+                        <div><b>Baseline:</b> 1991–2020 (WMO standard)</div>
+                        <div><b>Source:</b> CHIRPS PENTAD (~5.5km)</div>
+                        <div style={{ marginTop: 6, color: "#3b82f6" }}>
+                          Values: &lt;−1.5 severe drought · −1 to −1.5 moderate ·
+                          0 normal · &gt;1 wet · &gt;1.5 very wet
+                        </div>
+                      </div>
+                    )}
                   </div>
               </>
             )}
@@ -1133,12 +1152,25 @@ export default function Maps() {
                             </div>
                           ))}
                         </div>
-                      );
+                     );
                     })()}
+
+                    {/* Export CSV */}
+                    <button onClick={exportTimeSeriesCSV} style={{
+                      marginTop: 12, width: "100%", background: t.card,
+                      border: `1px solid ${t.border}`, borderRadius: 7,
+                      padding: "8px 12px", fontSize: 12, fontWeight: 600,
+                      color: t.muted, cursor: "pointer", fontFamily: "sans-serif",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                    }}>
+                      <Icon d={icons.download} size={13} /> Export CSV
+                    </button>
                   </>
                 )}
               </div>
             )}
+
+            {/* ── CHANGE MAP TAB ── */}
 
             {/* ── CHANGE MAP TAB ── */}
             {activeTab === "changemap" && (
