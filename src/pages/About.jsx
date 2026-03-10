@@ -161,56 +161,55 @@ export default function About() {
             </p>
           </section>
         </FadeIn>
-
         {/* ── Team ── */}
-        <FadeIn delay={80}>
-          <section style={{ marginBottom: 68 }}>
-            <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0f172a", margin: 0 }}>The team</h2>
-            <Divider />
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
+<FadeIn delay={80}>
+  <section style={{ marginBottom: 68 }}>
+    <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0f172a", margin: 0 }}>The team</h2>
+    <Divider />
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
 
-              <img
-                src="/images/haftom.jpeg"
-                alt="Haftom G."
-                style={{
-                  width: 48, height: 48, borderRadius: 12,
-                  objectFit: "cover", marginBottom: 16,
-                }}
-              />
-                <div style={{ fontWeight: 700, fontSize: 16, color: "#0f172a", marginBottom: 4 }}>Haftom H.</div>
-                <div style={{
-                  fontSize: 11, fontWeight: 700, color: "#22c55e",
-                  textTransform: "uppercase", letterSpacing: "0.09em",
-                  fontFamily: "sans-serif", marginBottom: 12,
-                }}>Founder & Lead Developer</div>
-                <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.7, margin: 0, fontFamily: "sans-serif" }}>
-                  Remote sensing specialist and full-stack developer. Built Hwasat to solve
-                  the access barriers he personally experienced working with satellite data
-                  in Ethiopia.
-                </p>
-              </div>
+      {/* Haftom */}
+      <div style={{ border: "1px solid #e2e8f0", borderRadius: 14, padding: "28px 24px" }}>
+        <img
+          src="/images/haftom.jpeg"
+          alt="Haftom H."
+          style={{ width: 48, height: 48, borderRadius: 12, objectFit: "cover", marginBottom: 16 }}
+        />
+        <div style={{ fontWeight: 700, fontSize: 16, color: "#0f172a", marginBottom: 4 }}>Haftom H.</div>
+        <div style={{
+          fontSize: 11, fontWeight: 700, color: "#22c55e",
+          textTransform: "uppercase", letterSpacing: "0.09em",
+          fontFamily: "sans-serif", marginBottom: 12,
+        }}>Founder & Lead Developer</div>
+        <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.7, margin: 0, fontFamily: "sans-serif" }}>
+          Remote sensing specialist and full-stack developer. Built Hwasat to solve
+          the access barriers he personally experienced working with satellite data
+          in Ethiopia.
+        </p>
+      </div>
 
-              <img
-                src="/images/haftom.jpeg"
-                alt="Haftom G."
-                style={{
-                  width: 48, height: 48, borderRadius: 12,
-                  objectFit: "cover", marginBottom: 16,
-                }}
-              />
-                <div style={{ fontWeight: 700, fontSize: 16, color: "#0f172a", marginBottom: 4 }}>Dr. Haftu Abrha (Associate Professor)</div>
-                <div style={{
-                  fontSize: 11, fontWeight: 700, color: "#0891b2",
-                  textTransform: "uppercase", letterSpacing: "0.09em",
-                  fontFamily: "sans-serif", marginBottom: 12,
-                }}>Mekelle University</div>
-                <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.7, margin: 0, fontFamily: "sans-serif" }}>
-                  Lecturer at Mekelle University contributing academic expertise in climate and environmental science to the platform's research direction.
-                </p>
-              </div>
-            </div>
-          </section>
-        </FadeIn>
+      {/* Dr. Haftu */}
+      <div style={{ border: "1px solid #e2e8f0", borderRadius: 14, padding: "28px 24px" }}>
+        <img
+          src="/images/haftu.jpeg"
+          alt="Dr. Haftu Abrha"
+          style={{ width: 48, height: 48, borderRadius: 12, objectFit: "cover", marginBottom: 16 }}
+        />
+        <div style={{ fontWeight: 700, fontSize: 16, color: "#0f172a", marginBottom: 4 }}>Dr. Haftu Abrha</div>
+        <div style={{
+          fontSize: 11, fontWeight: 700, color: "#0891b2",
+          textTransform: "uppercase", letterSpacing: "0.09em",
+          fontFamily: "sans-serif", marginBottom: 12,
+        }}>Associate Professor · Mekelle University</div>
+        <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.7, margin: 0, fontFamily: "sans-serif" }}>
+          Lecturer at Mekelle University contributing academic expertise in climate
+          and environmental science to the platform's research direction.
+        </p>
+      </div>
+
+    </div>
+  </section>
+</FadeIn>
 
         {/* ── Partnership ── */}
         <FadeIn delay={80}>
