@@ -105,8 +105,8 @@ export default function About() {
               across Ethiopia and the wider Africa, that barrier was simply too high.
             </p>
             <p style={{ fontSize: 17, lineHeight: 1.9, color: "#334155", margin: 0, fontFamily: "sans-serif" }}>
-              Hwasat Geosense was founded in 2024 with a straightforward goal: remove that
-              barrier entirely. Build a platform where anyone — regardless of their technical
+              Hwasat Geosense was founded in 2025 with a straightforward goal: removing the technical
+              barrier. Build a platform where anyone — regardless of their technical
               background — can select an area, choose a dataset, and get analysis-ready
               satellite intelligence in minutes.
             </p>
@@ -128,7 +128,7 @@ export default function About() {
               display: "block", marginTop: 14, fontSize: 13,
               color: "#16a34a", fontStyle: "normal", fontFamily: "sans-serif", fontWeight: 600,
             }}>
-              {/*— Haftom, Founder, Hwasat Geosense*/}
+              — Haftom, Founder, Hwasat Geosense
             </cite>
           </blockquote>
         </FadeIn>
@@ -215,7 +215,8 @@ export default function About() {
                   fontFamily: "sans-serif", marginBottom: 12,
                 }}>Founder & Lead Developer</div>
                 <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.7, margin: 0, fontFamily: "sans-serif" }}>
-                  Remote sensing specialist and full-stack developer.
+                  Geospatial analyst who designed and built Hwasat Geosense — combining Earth Observation expertise with modern web technologies 
+                  to make satellite analysis accessible to all.
                 </p>
               </div>
 
