@@ -59,6 +59,9 @@ export default function Maps() {
   const [selectedFeatureGeoJSON, setSelectedFeatureGeoJSON] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [emailInput, setEmailInput] = useState("");
+  const [emailPendingAction, setEmailPendingAction] = useState(null); // fn to call after email captured
   const [useCustomGeoJSON, setUseCustomGeoJSON] = useState(false);
   const [customGeoJSON, setCustomGeoJSON] = useState(null);
   const fileInputRef = useRef(null);
@@ -539,7 +542,11 @@ export default function Maps() {
   };
 
   // ── Download ──
-  const handleDownloadClick = async () => {
+  const handleDownloadClick = () => {
+    requireEmail("download_geotiff", () => _doDownload());
+  };
+
+  const _doDownload = async () => {
     const geometry = useCustomGeoJSON ? customGeoJSON?.geometry : selectedFeatureGeoJSON?.geometry;
     if (!geometry) return setMessage(useCustomGeoJSON ? "Upload a GeoJSON first" : "Select a feature first");
     if (!dataset || !index) return setMessage("Select dataset and index");
@@ -814,37 +821,76 @@ export default function Maps() {
     } catch (e) { setMessage(`Change map failed: ${e.message}`); }
     finally { setChangeMapLoading(false); }
   };
+// ── Email gate — wraps any action behind email capture ──
+  
+ const saveEmail = async (email, action) => {
+    try {
+      await fetch(`${BACKEND_URL}/capture_email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, action }),
+      });
+    } catch (e) {
+      console.warn("Email save failed:", e);
+    }
+  };
 
+  const requireEmail = (actionLabel, actionFn) => {
+    const stored = localStorage.getItem("hwasat_user_email");
+    if (stored) {
+      actionFn(); // already have email, proceed directly
+    } else {
+      setEmailPendingAction(() => actionFn);
+      setEmailModalOpen(true);
+    }
+  };
+
+  const handleEmailSubmit = async () => {
+    const email = emailInput.trim();
+    if (!email || !email.includes("@")) return;
+    localStorage.setItem("hwasat_user_email", email);
+    setEmailModalOpen(false);
+    await saveEmail(email, "download_or_export");
+    if (emailPendingAction) {
+      emailPendingAction();
+      setEmailPendingAction(null);
+    }
+    setEmailInput("");
+  };
 
   // ── Export CSV: Time Series ──
   const exportTimeSeriesCSV = () => {
-    if (!tsData) return;
-    const rows = [["Date", tsData.index], ...tsData.data.map(d => [d.date, d.value ?? ""])];
-    const csv = rows.map(r => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${tsData.dataset}_${tsData.index}_timeseries.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    requireEmail("export_timeseries_csv", () => {
+      if (!tsData) return;
+      const rows = [["Date", tsData.index], ...tsData.data.map(d => [d.date, d.value ?? ""])];
+      const csv = rows.map(r => r.join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${tsData.dataset}_${tsData.index}_timeseries.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
   };
 
   // ── Export CSV: Land Cover Stats ──
   const exportStatsCSV = () => {
-    if (!statsData) return;
-    const headers = ["Class","Period1_%","Period2_%","Change_%","Period1_km2","Period2_km2","Change_km2"];
-    const rows = statsData.rows.map(r => [
-      r.class, r.pct1, r.pct2, r.change_pct, r.area1_km2, r.area2_km2, r.change_km2
-    ]);
-    const csv = [headers, ...rows].map(r => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `landcover_stats_${statsData.period1}_vs_${statsData.period2}.csv`.replace(/\s/g,"_");
-    a.click();
-    URL.revokeObjectURL(url);
+    requireEmail("export_stats_csv", () => {
+      if (!statsData) return;
+      const headers = ["Class","Period1_%","Period2_%","Change_%","Period1_km2","Period2_km2","Change_km2"];
+      const rows = statsData.rows.map(r => [
+        r.class, r.pct1, r.pct2, r.change_pct, r.area1_km2, r.area2_km2, r.change_km2
+      ]);
+      const csv = [headers, ...rows].map(r => r.join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `landcover_stats_${statsData.period1}_vs_${statsData.period2}.csv`.replace(/\s/g,"_");
+      a.click();
+      URL.revokeObjectURL(url);
+    });
   };
 
   const SIDEBAR_W = 300;
@@ -1520,7 +1566,74 @@ export default function Maps() {
           </div>
         </div>
       </div>
+{/* ── Email Capture Modal ── */}
+        {emailModalOpen && (
+          <div style={{
+            position: "fixed", inset: 0, zIndex: 9999,
+            background: "rgba(0,0,0,0.5)", backdropFilter: "blur(3px)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }} onClick={(e) => { if (e.target === e.currentTarget) setEmailModalOpen(false); }}>
+            <div style={{
+              background: "white", borderRadius: 16, padding: "36px 32px",
+              width: 380, boxShadow: "0 24px 60px rgba(0,0,0,0.25)",
+              fontFamily: "sans-serif", position: "relative",
+            }}>
+              {/* Close */}
+              <button onClick={() => setEmailModalOpen(false)} style={{
+                position: "absolute", top: 14, right: 16, background: "none",
+                border: "none", fontSize: 20, cursor: "pointer", color: "#9ca3af",
+              }}>×</button>
 
+              {/* Icon */}
+              <div style={{ textAlign: "center", marginBottom: 16 }}>
+                <div style={{
+                  width: 52, height: 52, borderRadius: "50%",
+                  background: "#f0fdf4", margin: "0 auto 12px",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: "#111" }}>Almost there</div>
+                <div style={{ fontSize: 13, color: "#6b7280", marginTop: 6, lineHeight: 1.5 }}>
+                  Enter your email to download data.<br/>We'll never spam you.
+                </div>
+              </div>
+
+              {/* Input */}
+              <input
+                type="email"
+                placeholder="you@example.com"
+                value={emailInput}
+                onChange={e => setEmailInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleEmailSubmit()}
+                autoFocus
+                style={{
+                  width: "100%", padding: "11px 14px", fontSize: 14,
+                  border: "1.5px solid #e5e7eb", borderRadius: 9,
+                  outline: "none", boxSizing: "border-box", marginBottom: 12,
+                  fontFamily: "sans-serif",
+                }}
+              />
+
+              {/* Button */}
+              <button onClick={handleEmailSubmit} disabled={!emailInput.includes("@")} style={{
+                width: "100%", padding: "12px", borderRadius: 9, border: "none",
+                background: emailInput.includes("@") ? "#22c55e" : "#e5e7eb",
+                color: emailInput.includes("@") ? "white" : "#9ca3af",
+                fontSize: 14, fontWeight: 700, cursor: emailInput.includes("@") ? "pointer" : "default",
+                transition: "all 0.15s",
+              }}>
+                Continue →
+              </button>
+
+              <div style={{ textAlign: "center", fontSize: 11, color: "#9ca3af", marginTop: 10 }}>
+                Free forever. No account needed.
+              </div>
+            </div>
+          </div>
+        )}
     </div>
   );
 }
