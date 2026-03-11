@@ -210,10 +210,6 @@ export default function Maps() {
       if (!ds.active) return;
       const { lat, lng } = e.latlng;
 
-      if (ds.type === "point") {
-        finishDrawing({ type: "Feature", geometry: { type: "Point", coordinates: [lng, lat] }, properties: { name: "Drawn Point" } });
-        return;
-      }
       if (ds.type === "polygon") {
         ds.points.push([lng, lat]);
         if (ds.tempLayer) map.removeLayer(ds.tempLayer);
@@ -1104,7 +1100,6 @@ export default function Maps() {
             { type: "rectangle", title: "Draw Rectangle", svg: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="1" stroke="currentColor" strokeWidth="1.8"/></svg> },
             { type: "polygon",   title: "Draw Polygon (double-click to finish)", svg: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><polygon points="8,1 15,6 12,14 4,14 1,6" stroke="currentColor" strokeWidth="1.8" fill="none"/></svg> },
             { type: "circle",    title: "Draw Circle", svg: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.8"/></svg> },
-            { type: "point",     title: "Drop Point", svg: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="7" r="3" stroke="currentColor" strokeWidth="1.8"/><path d="M8 10 Q8 14 8 15" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg> },
           ].map(({ type, title, svg }) => (
             <button key={type} title={title} onClick={() => activeTool === type ? setActiveTool(null) || (drawingStateRef.current.active = false) || (mapRef.current.getContainer().style.cursor = "") : startDrawing(type)} style={{
               width: 32, height: 32, borderRadius: 6, border: "2px solid",
