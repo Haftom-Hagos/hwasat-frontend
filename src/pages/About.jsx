@@ -93,22 +93,20 @@ export default function About() {
             <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0f172a", margin: 0 }}>The problem we lived</h2>
             <Divider />
             <p style={{ fontSize: 17, lineHeight: 1.9, color: "#334155", margin: "0 0 20px", fontFamily: "sans-serif" }}>
-              Like many researchers working with satellite data, our founder Haftom
-              spent countless hours writing Google Earth Engine scripts just to answer basic
-              questions — What is the NDVI trend in this watershed? How has land cover changed
+              Many researchers working with satellite data, spent several hours writing Google Earth Engine scripts just to answer basic
+              questions: What is the NDVI trend in this watershed? How has land cover changed
               over the past decade? Is this region experiencing drought stress?
             </p>
             <p style={{ fontSize: 17, lineHeight: 1.9, color: "#334155", margin: "0 0 20px", fontFamily: "sans-serif" }}>
-              The data existed. The satellite archives were there — free, global, and updated
+              The data existed. The satellite archives were there free, global, and updated
               regularly. But accessing them required programming knowledge, or expensive GIS
               software. For researchers, agricultural planners, and government agencies
               across Ethiopia and the wider Africa, that barrier was simply too high.
             </p>
             <p style={{ fontSize: 17, lineHeight: 1.9, color: "#334155", margin: 0, fontFamily: "sans-serif" }}>
               Hwasat Geosense was founded in 2025 with a straightforward goal: removing the technical
-              barrier. Build a platform where anyone — regardless of their technical
-              background — can select an area, choose a dataset, and get analysis-ready
-              satellite intelligence in minutes.
+              barrier. Build a platform where anyone, regardless of their technical
+              background, can and get analysis-ready satellite intelligence in minutes.
             </p>
           </section>
         </FadeIn>
@@ -141,14 +139,14 @@ export default function About() {
             <p style={{ fontSize: 17, lineHeight: 1.9, color: "#334155", margin: "0 0 20px", fontFamily: "sans-serif" }}>
               Hwasat Geosense is a browser-based Earth Observation platform powered by
               Google Earth Engine. It integrates satellite data from Sentinel-2, Landsat,
-              MODIS, CHIRPS, and Dynamic World — giving users access to over 25
+              MODIS, CHIRPS, and Dynamic World; giving users access to over 25
               spectral indices and environmental layers including NDVI, EVI, NDWI, VHI,
               SPI, and Dynamic World land cover classification.
             </p>
             <p style={{ fontSize: 17, lineHeight: 1.9, color: "#334155", margin: "0 0 28px", fontFamily: "sans-serif" }}>
-              Users in Ethiopia can select any administrative boundary — from regional down
-              to district level — as their area of interest. Users anywhere in the world can
-              upload a custom GeoJSON file and run the same analysis on any location. No
+              Users in Ethiopia can select any administrative boundary, from regional down
+              to district level, as their area of interest. Users anywhere in the world can
+              upload a custom GeoJSON file or draw polygon manually and run the same analysis on any location. No
               software installation. No coding. No GIS license required.
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
@@ -180,15 +178,14 @@ export default function About() {
             <p style={{ fontSize: 17, lineHeight: 1.9, color: "#334155", margin: "0 0 20px", fontFamily: "sans-serif" }}>
               While Hwasat works for any location globally, our primary focus is on
               researchers, agricultural planners, government agencies, and environmental
-              organisations in Ethiopia and across the African continent — communities where
-              access to affordable, easy-to-use EO tools can directly support food security,
+              organisations in Ethiopia and across the Africa where access to affordable, easy-to-use EO tools can directly support food security,
               natural resource management, and climate adaptation planning.
             </p>
             <p style={{ fontSize: 17, lineHeight: 1.9, color: "#334155", margin: 0, fontFamily: "sans-serif" }}>
               For organisations that require tailored analysis, system integration, or
               capacity building, Hwasat Geosense also offers professional services in
               satellite-based environmental monitoring, crop assessment, land cover mapping,
-              and climate risk analysis — helping institutions extract maximum value from
+              and climate risk analysis; helping institutions extract maximum value from
               their Earth Observation investments.
             </p>
           </section>
