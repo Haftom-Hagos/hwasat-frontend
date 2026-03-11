@@ -38,6 +38,10 @@ export default function Maps() {
   const p1LayerRef = useRef(null);
   const p2LayerRef = useRef(null);
   const changeLayerRef = useRef(null);
+  
+  const drawnLayerRef = useRef(null);
+  const drawingStateRef = useRef({ active: false, type: null, points: [], tempLayer: null });
+  const [activeTool, setActiveTool] = useState(null); // 'rectangle'|'polygon'|'circle'|'point'
 
   // ── UI state ──
   const [darkMode, setDarkMode] = useState(false);
@@ -163,6 +167,148 @@ export default function Maps() {
   useEffect(() => {
     setTimeout(() => mapRef.current?.invalidateSize(), 320);
   }, [sidebarOpen, resultsOpen]);
+
+  // ── Drawing Tools Engine ──
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const ds = drawingStateRef.current;
+
+    const finishDrawing = (geojson) => {
+      // Remove temp layer
+      if (ds.tempLayer) { map.removeLayer(ds.tempLayer); ds.tempLayer = null; }
+      // Remove previous drawn AOI
+      if (drawnLayerRef.current) map.removeLayer(drawnLayerRef.current);
+      // Add final layer
+      const layer = L.geoJSON(geojson, {
+        style: { color: "#ef4444", weight: 2.5, fillOpacity: 0.15 },
+        pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 8, color: "#ef4444", fillOpacity: 0.6 }),
+      }).addTo(map);
+      drawnLayerRef.current = layer;
+      // Set as active AOI (reuse customGeoJSON pathway)
+      setCustomGeoJSON(geojson);
+      setUseCustomGeoJSON(true);
+      setActiveTool(null);
+      ds.active = false;
+      ds.type = null;
+      ds.points = [];
+      map.getContainer().style.cursor = "";
+    };
+
+    const cancelDrawing = () => {
+      if (ds.tempLayer) { map.removeLayer(ds.tempLayer); ds.tempLayer = null; }
+      ds.points = [];
+      ds.active = false;
+      ds.type = null;
+      map.getContainer().style.cursor = "";
+      setActiveTool(null);
+    };
+
+    // ── Click handler ──
+    const onClick = (e) => {
+      if (!ds.active) return;
+      const { lat, lng } = e.latlng;
+
+      if (ds.type === "point") {
+        finishDrawing({ type: "Feature", geometry: { type: "Point", coordinates: [lng, lat] }, properties: { name: "Drawn Point" } });
+        return;
+      }
+      if (ds.type === "polygon") {
+        ds.points.push([lng, lat]);
+        if (ds.tempLayer) map.removeLayer(ds.tempLayer);
+        if (ds.points.length >= 2) {
+          ds.tempLayer = L.polyline(ds.points.map(([ln, la]) => [la, ln]), { color: "#ef4444", dashArray: "5,5", weight: 2 }).addTo(map);
+        }
+        return;
+      }
+      if (ds.type === "rectangle" || ds.type === "circle") {
+        if (ds.points.length === 0) {
+          ds.points.push([lng, lat]);
+        } else {
+          const [lng0, lat0] = ds.points[0];
+          if (ds.type === "rectangle") {
+            finishDrawing({
+              type: "Feature",
+              geometry: { type: "Polygon", coordinates: [[[lng0,lat0],[lng,lat0],[lng,lat],[lng0,lat],[lng0,lat0]]] },
+              properties: { name: "Drawn Rectangle" }
+            });
+          } else {
+            // Circle → approximate as 64-point polygon
+            const R = Math.sqrt(Math.pow(lng - lng0, 2) + Math.pow(lat - lat0, 2));
+            const coords = Array.from({ length: 64 }, (_, i) => {
+              const angle = (i / 64) * 2 * Math.PI;
+              return [lng0 + R * Math.cos(angle), lat0 + R * Math.sin(angle)];
+            });
+            coords.push(coords[0]);
+            finishDrawing({ type: "Feature", geometry: { type: "Polygon", coordinates: [coords] }, properties: { name: "Drawn Circle" } });
+          }
+          ds.points = [];
+        }
+        return;
+      }
+    };
+
+    // ── Double-click to finish polygon ──
+    const onDblClick = (e) => {
+      if (!ds.active || ds.type !== "polygon") return;
+      L.DomEvent.stop(e);
+      if (ds.points.length < 3) return;
+      const coords = [...ds.points, ds.points[0]];
+      finishDrawing({ type: "Feature", geometry: { type: "Polygon", coordinates: [coords] }, properties: { name: "Drawn Polygon" } });
+    };
+
+    // ── Mousemove preview ──
+    const onMouseMove = (e) => {
+      if (!ds.active || ds.points.length === 0) return;
+      const { lat, lng } = e.latlng;
+      if (ds.tempLayer) map.removeLayer(ds.tempLayer);
+      const [lng0, lat0] = ds.points[0];
+
+      if (ds.type === "rectangle") {
+        ds.tempLayer = L.rectangle([[lat0, lng0], [lat, lng]], { color: "#ef4444", weight: 2, dashArray: "5,5", fillOpacity: 0.1 }).addTo(map);
+      } else if (ds.type === "circle") {
+        const R = Math.sqrt(Math.pow(lng - lng0, 2) + Math.pow(lat - lat0, 2));
+        const coords = Array.from({ length: 64 }, (_, i) => {
+          const angle = (i / 64) * 2 * Math.PI;
+          return [lat0 + R * Math.sin(angle), lng0 + R * Math.cos(angle)];
+        });
+        ds.tempLayer = L.polygon(coords, { color: "#ef4444", weight: 2, dashArray: "5,5", fillOpacity: 0.1 }).addTo(map);
+      } else if (ds.type === "polygon" && ds.points.length >= 1) {
+        const preview = [...ds.points.map(([ln, la]) => [la, ln]), [lat, lng]];
+        ds.tempLayer = L.polyline(preview, { color: "#ef4444", dashArray: "5,5", weight: 2 }).addTo(map);
+      }
+    };
+
+    // ── Escape to cancel ──
+    const onKeyDown = (e) => { if (e.key === "Escape") cancelDrawing(); };
+
+    map.on("click", onClick);
+    map.on("dblclick", onDblClick);
+    map.on("mousemove", onMouseMove);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      map.off("click", onClick);
+      map.off("dblclick", onDblClick);
+      map.off("mousemove", onMouseMove);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, []);
+
+  // ── Activate a drawing tool ──
+  const startDrawing = (type) => {
+    const map = mapRef.current;
+    if (!map) return;
+    const ds = drawingStateRef.current;
+    // Cancel any existing
+    if (ds.tempLayer) { map.removeLayer(ds.tempLayer); ds.tempLayer = null; }
+    ds.points = [];
+    ds.active = true;
+    ds.type = type;
+    setActiveTool(type);
+    const cursors = { rectangle: "crosshair", polygon: "crosshair", circle: "crosshair", point: "cell" };
+    map.getContainer().style.cursor = cursors[type] || "crosshair";
+  };
 
   // ── Load boundaries ──
   useEffect(() => {
@@ -948,6 +1094,43 @@ export default function Maps() {
       {/* ── Map ── */}
       <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
         <div id="map" style={{ height: "100%", width: "100%" }} />
+
+        {/* ── Drawing Toolbar ── */}
+        <div style={{
+          position: "absolute", top: 80, left: 10, zIndex: 1000,
+          display: "flex", flexDirection: "column", gap: 4,
+        }}>
+          {[
+            { type: "rectangle", title: "Draw Rectangle", svg: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="1" stroke="currentColor" strokeWidth="1.8"/></svg> },
+            { type: "polygon",   title: "Draw Polygon (double-click to finish)", svg: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><polygon points="8,1 15,6 12,14 4,14 1,6" stroke="currentColor" strokeWidth="1.8" fill="none"/></svg> },
+            { type: "circle",    title: "Draw Circle", svg: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.8"/></svg> },
+            { type: "point",     title: "Drop Point", svg: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="7" r="3" stroke="currentColor" strokeWidth="1.8"/><path d="M8 10 Q8 14 8 15" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg> },
+          ].map(({ type, title, svg }) => (
+            <button key={type} title={title} onClick={() => activeTool === type ? setActiveTool(null) || (drawingStateRef.current.active = false) || (mapRef.current.getContainer().style.cursor = "") : startDrawing(type)} style={{
+              width: 32, height: 32, borderRadius: 6, border: "2px solid",
+              borderColor: activeTool === type ? "#ef4444" : "rgba(0,0,0,0.25)",
+              background: activeTool === type ? "#fef2f2" : "white",
+              color: activeTool === type ? "#ef4444" : "#444",
+              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
+            }}>
+              {svg}
+            </button>
+          ))}
+          {drawnLayerRef.current && (
+            <button title="Clear drawn AOI" onClick={() => {
+              if (drawnLayerRef.current) { mapRef.current.removeLayer(drawnLayerRef.current); drawnLayerRef.current = null; }
+              setCustomGeoJSON(null); setUseCustomGeoJSON(false); setActiveTool(null);
+            }} style={{
+              width: 32, height: 32, borderRadius: 6, border: "2px solid rgba(0,0,0,0.25)",
+              background: "white", color: "#888", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.2)", marginTop: 4,
+            }} title="Clear drawing">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+            </button>
+          )}
+        </div>
 
         {/* Loading spinner */}
         {loading && (
