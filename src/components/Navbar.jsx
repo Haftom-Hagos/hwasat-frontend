@@ -14,7 +14,7 @@ export default function Navbar() {
   return (
     <header style={{
       position: "sticky", top: 0, zIndex: 1000,
-      background: "#fafafa",
+      background: "#ffffff",
       borderBottom: "1px solid #1e293b",
       boxShadow: "0 1px 12px rgba(0,0,0,0.4)",
       fontFamily: "sans-serif",
@@ -28,7 +28,7 @@ export default function Navbar() {
       <Link to="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
         <img src="images/logo.png" alt="Hwasat Geosense" style={{ height: 36, width: "auto" }} />
         <div>
-          <span style={{ fontWeight: 700, fontSize: 22, color: "#f1f5f9", letterSpacing: "-0.01em" }}>
+          <span style={{ fontWeight: 700, fontSize: 22, color: "#0f172a", letterSpacing: "-0.01em" }}>
             Hwasat
           </span>
           <span style={{ fontWeight: 400, fontSize: 20, color: "#64748b", marginLeft: 6 }}>
