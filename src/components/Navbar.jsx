@@ -38,10 +38,10 @@ export default function Navbar() {
       </Link>
 
         {/* ── Desktop Nav ── */}
-        <nav style={{ display: "flex", alignItems: "center", gap: 4 }} className="desktop-nav">
+        <nav style={{ display: "flex", alignItems: "center", gap: 12 }} className="desktop-nav">
           {links.map((l) => (
             <NavLink key={l.to} to={l.to} style={({ isActive }) => ({
-              ng: "6px 14px",
+              padding: "8px 18px",
               borderRadius: 6,
               fontSize: 15,
               fontWeight: 500,
@@ -57,7 +57,7 @@ export default function Navbar() {
 
           {/*<Link to="/maps" style={{
             marginLeft: 8,
-            ng: "7px 16px",
+            padding: "7px 16px",
             borderRadius: 6,
             fontSize: 13,
             fontWeight: 600,
