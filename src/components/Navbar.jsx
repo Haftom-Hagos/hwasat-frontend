@@ -21,7 +21,7 @@ export default function Navbar() {
     }}>
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 48px", height: 64,,
+        padding: "0 48px", height: 64,
       }}>
 
       {/* ── Logo ── */}
