@@ -14,14 +14,14 @@ export default function Navbar() {
   return (
     <header style={{
       position: "sticky", top: 0, zIndex: 1000,
-      background: "#fafafa",  {/*"#0f172a"*/}
+      background: "#fafafa",
       borderBottom: "1px solid #1e293b",
       boxShadow: "0 1px 12px rgba(0,0,0,0.4)",
       fontFamily: "sans-serif",
     }}>
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 60px", height: 72,
+        padding: "0 72px", height: 84,
       }}>
 
       {/* ── Logo ── */}
