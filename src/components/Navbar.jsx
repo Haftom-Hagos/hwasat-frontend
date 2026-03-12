@@ -14,24 +14,24 @@ export default function Navbar() {
   return (
     <header style={{
       position: "sticky", top: 0, zIndex: 1000,
-      background: "#0f172a",
+      background: "#fafafa",  {/*"#0f172a"*/}
       borderBottom: "1px solid #1e293b",
       boxShadow: "0 1px 12px rgba(0,0,0,0.4)",
       fontFamily: "sans-serif",
     }}>
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 48px", height: 64,
+        padding: "0 60px", height: 72,
       }}>
 
       {/* ── Logo ── */}
       <Link to="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
         <img src="images/logo.png" alt="Hwasat Geosense" style={{ height: 36, width: "auto" }} />
         <div>
-          <span style={{ fontWeight: 700, fontSize: 17, color: "#f1f5f9", letterSpacing: "-0.01em" }}>
+          <span style={{ fontWeight: 700, fontSize: 22, color: "#f1f5f9", letterSpacing: "-0.01em" }}>
             Hwasat
           </span>
-          <span style={{ fontWeight: 400, fontSize: 15, color: "#64748b", marginLeft: 6 }}>
+          <span style={{ fontWeight: 400, fontSize: 20, color: "#64748b", marginLeft: 6 }}>
             Geosense
           </span>
         </div>
@@ -41,7 +41,7 @@ export default function Navbar() {
         <nav style={{ display: "flex", alignItems: "center", gap: 12 }} className="desktop-nav">
           {links.map((l) => (
             <NavLink key={l.to} to={l.to} style={({ isActive }) => ({
-              padding: "8px 18px",
+              padding: "6px 14px",
               borderRadius: 6,
               fontSize: 15,
               fontWeight: 500,
