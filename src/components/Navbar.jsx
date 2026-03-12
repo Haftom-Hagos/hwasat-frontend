@@ -21,17 +21,17 @@ export default function Navbar() {
     }}>
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 24px", height: 56,
+        padding: "0 48px", height: 64,,
       }}>
 
       {/* ── Logo ── */}
       <Link to="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
         <img src="images/logo.png" alt="Hwasat Geosense" style={{ height: 36, width: "auto" }} />
         <div>
-          <span style={{ fontWeight: 700, fontSize: 15, color: "#f1f5f9", letterSpacing: "-0.01em" }}>
+          <span style={{ fontWeight: 700, fontSize: 17, color: "#f1f5f9", letterSpacing: "-0.01em" }}>
             Hwasat
           </span>
-          <span style={{ fontWeight: 400, fontSize: 13, color: "#64748b", marginLeft: 6 }}>
+          <span style={{ fontWeight: 400, fontSize: 15, color: "#64748b", marginLeft: 6 }}>
             Geosense
           </span>
         </div>
@@ -41,9 +41,9 @@ export default function Navbar() {
         <nav style={{ display: "flex", alignItems: "center", gap: 4 }} className="desktop-nav">
           {links.map((l) => (
             <NavLink key={l.to} to={l.to} style={({ isActive }) => ({
-              padding: "6px 14px",
+              ng: "6px 14px",
               borderRadius: 6,
-              fontSize: 13,
+              fontSize: 15,
               fontWeight: 500,
               textDecoration: "none",
               transition: "all 0.15s",
@@ -57,7 +57,7 @@ export default function Navbar() {
 
           {/*<Link to="/maps" style={{
             marginLeft: 8,
-            padding: "7px 16px",
+            ng: "7px 16px",
             borderRadius: 6,
             fontSize: 13,
             fontWeight: 600,
@@ -100,7 +100,7 @@ export default function Navbar() {
           {links.map((l) => (
             <NavLink key={l.to} to={l.to} onClick={() => setMenuOpen(false)}
               style={({ isActive }) => ({
-                padding: "10px 12px", borderRadius: 6, fontSize: 14, fontWeight: 500,
+                padding: "10px 12px", borderRadius: 6, fontSize: 16, fontWeight: 500,
                 textDecoration: "none", marginTop: 4,
                 background: isActive ? "rgba(22,163,74,0.12)" : "transparent",
                 color: isActive ? "#4ade80" : "#94a3b8",
